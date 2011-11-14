@@ -22,10 +22,10 @@ class Prosty {
 		$repo = Git::create($full_path_to_dev); //git init        
 		$repo->run('remote add konscript '. $this->getGitRemote($project_alias)); 	// add remote
 		$repo->run('config branch.master.remote konscript');				// set Konscript as the default remote
-		$repo->run('config branch.master.merge refs/heads/master');			// set master as the default branch to pull from
+		$repo->run('config branch.master.merge refs/heads/master');			// set master as the default branch to pull from	
 		
 		// wordpress: download and extract latest version
-		if(isset($data["wordpress"])){
+		if(isset($data["wordpress"]) && $data["wordpress"] == true){
 			$this->wp_get_latest($project_alias);
 		}
 		
@@ -52,28 +52,35 @@ class Prosty {
 	}
 	
 	/***************************
-	* update existing project
+	* update existing project - change virtual hosts and symlink
 	***************************/
 	function updateProject($data, $old_data){	
 	
 		$project_alias = $old_data["project_alias"];
-		
-		// produce and check vhost for Nginx	
-		$nginx = array();	
-		$nginx[] = array($this->vhost_nginx_additional($old_data["primary_domain"], $old_data["additional_domains"]), $this->vhost_nginx_additional($data["primary_domain"], $data["additional_domains"]));		// additional			
-		$nginx[] = array($this->vhost_nginx_rewrite($old_data["primary_domain"]), $this->vhost_nginx_rewrite($data["primary_domain"])	);	// rewrite
-		$nginx[] = array($this->vhost_nginx_primary($old_data["primary_domain"]), $this->vhost_nginx_primary($data["primary_domain"])	); // primary
-		$nginx[] = array($this->vhost_nginx_dev($old_data["dev_domain"]), $this->vhost_nginx_dev($data["dev_domain"])); // dev
-		$nginx[] = array($this->vhost_nginx_cache($project_alias, $old_data["use_cache"]), $this->vhost_nginx_cache($project_alias, $data["use_cache"])); // dev	
 
-		$vhost_nginx_filename = "/etc/nginx/sites-available/".$old_data["project_alias"];			
-		$vhost_nginx_content = $this->get_vhost($vhost_nginx_filename, $nginx);
+		// these fields must be supplied, in order to update virtual hosts/symlinks
+		$vhost_fields = array('primary_domain', 'additional_domains', 'dev_domain', 'use_cache');
+		$all_fields = array_keys($data);	
+		$changed_vhost_fields = array_intersect($all_fields, $vhost_fields);		
+
+		if(count($changed_vhost_fields)>=count($vhost_fields)){
+			// produce and check vhost for Nginx	
+			$nginx = array();	
+			$nginx[] = array($this->vhost_nginx_additional($old_data["primary_domain"], $old_data["additional_domains"]), $this->vhost_nginx_additional($data["primary_domain"], $data["additional_domains"]));		// additional			
+			$nginx[] = array($this->vhost_nginx_rewrite($old_data["primary_domain"]), $this->vhost_nginx_rewrite($data["primary_domain"])	);	// rewrite
+			$nginx[] = array($this->vhost_nginx_primary($old_data["primary_domain"]), $this->vhost_nginx_primary($data["primary_domain"])	); // primary
+			$nginx[] = array($this->vhost_nginx_dev($old_data["dev_domain"]), $this->vhost_nginx_dev($data["dev_domain"])); // dev
+			$nginx[] = array($this->vhost_nginx_cache($project_alias, $old_data["use_cache"]), $this->vhost_nginx_cache($project_alias, $data["use_cache"])); // dev	
+
+			$vhost_nginx_filename = "/etc/nginx/sites-available/".$old_data["project_alias"];			
+			$vhost_nginx_content = $this->get_vhost($vhost_nginx_filename, $nginx);
+		}
 		
 		// on success
 		if (count($this->errors) == 0){     
 
 			// update symlink - if the version was changed
-			if(isset($data["current_version"]) && $old_data["current_version"]!=$data["current_version"]){
+			if(in_array('current_version', $all_fields)){
 				$symTarget = $this->web_root.$project_alias."/prod/".$data["current_version"];
 				$symlink = $this->web_root.$project_alias."/prod/current";			
 			
@@ -81,8 +88,10 @@ class Prosty {
 				symlink($symTarget, $symlink);
 			}		
 
-			// write new virtual host settings to Nginx
-			$this->writeToFile($vhost_nginx_filename, $vhost_nginx_content);
+			if(count($changed_vhost_fields)>0){
+				// write new virtual host settings to Nginx
+				$this->writeToFile($vhost_nginx_filename, $vhost_nginx_content);
+			}
 		}			
 		 	
 	}
@@ -124,8 +133,6 @@ class Prosty {
 	
 	}  		
 	
-	
-
 	// Analyze the return code from the "git pull" command
     function checkGitPull($git_response){
         if($git_response[0]>0){
@@ -278,7 +285,7 @@ class Prosty {
 	 
 	// get the folder with the highest number (newest version)
 	function get_latest_prod_version($dir){
-		$folders = get_list_of_folders($dir);
+		$folders = $this->get_list_of_folders($dir);
 		$versions = array();
 		foreach($folders as $folder){
 		    if(is_numeric($folder) == true){
@@ -375,6 +382,34 @@ class Prosty {
 	*
 	***************************/
 	
+	
+   
+	/**
+	 * purge entire nginx cache for the current project
+	 ***/	  
+	function clearCache($project_id){    	
+		$path_to_nginx_cache ="/var/cache/nginx/cached/".$project_id;
+		$status = 1;		
+		
+		if(isset($project_id) && is_dir($path_to_nginx_cache)){
+			$chdir = is_dir($path_to_nginx_cache) ? chdir($path_to_nginx_cache) : false;
+
+			if($chdir && getcwd()==$path_to_nginx_cache && trim(shell_exec("pwd"))==$path_to_nginx_cache){
+				exec("find $path_to_nginx_cache -type f -exec rm -f {} \;", $output, $status);
+				$status = 0;
+			}
+		}
+		
+		// an error occured
+		if($status == 1){
+		
+			// build error message
+			$msg = "Cache could not be cleared in: $path_to_nginx_cache";
+			$msg .= " ( PHP: ".getcwd();
+			$msg .= " Shell: ".shell_exec("pwd").")";
+			$this->logError($msg, __function__);
+		}
+	}		
 
    /**
     * Produce content for the new virtual host for Nginx and check that all changes are reflected in the physical files

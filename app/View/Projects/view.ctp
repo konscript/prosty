@@ -6,9 +6,9 @@
 			<?php echo h($project['Project']['id']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Machine Readable'); ?></dt>
+		<dt><?php echo __('Project Alias'); ?></dt>
 		<dd>
-			<?php echo h($project['Project']['machine_readable']); ?>
+			<?php echo h($project['Project']['project_alias']); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('Title'); ?></dt>
@@ -117,7 +117,7 @@
 		<tr>
 			<td><?php echo $commit['id'];?></td>
 			<td><?php echo $commit['project_id'];?></td>
-			<td><?php echo $commit['commit_hash'];?></td>
+			<td><?php echo $commit['hash'];?></td>
 			<td><?php echo $commit['last_commit_msg'];?></td>
 			<td><?php echo $commit['number_of_commits'];?></td>
 			<td><?php echo $commit['ip_addr'];?></td>

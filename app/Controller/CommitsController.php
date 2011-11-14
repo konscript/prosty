@@ -13,26 +13,21 @@ class CommitsController extends AppController {
  *
  * @return void
  */
- var $scaffold;
- /*
+
+
 	public function index() {
 		$this->Commit->recursive = 0;
+		$this->Commit->order = array('Commit.id' => 'desc');		
 		$this->set('commits', $this->paginate());
 	}
-*/
+
 /**
  * view method
  *
  * @param string $id
  * @return void
  */
-	public function view($id = null) {
-		$this->Commit->id = $id;
-		if (!$this->Commit->exists()) {
-			throw new NotFoundException(__('Invalid commit'));
-		}
-		$this->set('commit', $this->Commit->read(null, $id));
-	}
+var $scaffold;
 
 /**
  * add method
@@ -40,16 +35,58 @@ class CommitsController extends AppController {
  * @return void
  */
 	public function add() {
+	
+	
+		if($_SERVER["REMOTE_ADDR"] == "127.0.0.1"){
+			$_REQUEST['payload'] = file_get_contents("/srv/www/prosty_cake/app/Vendor/payload");
+		}
+
+		// Receive the json payload string
+		if(isset($_REQUEST['payload'])){
+			$payload = json_decode($_REQUEST['payload']);
+		}else{
+			$this->Session->setFlash(__('No payload was received'));
+			$this->redirect(array('action' => 'index'));
+		}					
+				
+		$number_of_commits = count($payload->commits);
+
+		// get project_id via project_alias
+		$projects = $this->Commit->Project->find('first', array(
+			'conditions' => array('project_alias' => $payload->repository->name),
+			'recursive' => -1,
+			'fields' => array('id')
+		));		
+		
+		// get user_id via user's email
+		$user = $this->Commit->CreatedBy->find('first', array(
+			'conditions' => array('email' => $payload->commits[$number_of_commits-1]->author->email),
+			'recursive' => -1,
+			'fields' => array('id')
+		));		
+
+		// data for DB
+		$this->request->data["Commit"]["project_id"] = $projects["Project"]["id"];						
+		$this->request->data["Commit"]["hash"] = $payload->after;			
+		$this->request->data["Commit"]["last_commit_msg"] = $payload->commits[$number_of_commits-1]->message;			
+		$this->request->data["Commit"]["number_of_commits"] = $number_of_commits;			
+		$this->request->data["Commit"]["ip_addr"] = $_SERVER["REMOTE_ADDR"];		
+		$this->request->data["Commit"]["created_by"] = $user["CreatedBy"]["id"];			
+		$this->request->data["Commit"]["modified_by"] = $user["CreatedBy"]["id"];	
+		
+		// data for validation
+		$this->request->data["Commit"]["branch"] = $payload->ref;
+		$this->request->data["Commit"]["account"] = $payload->repository->url;
+		$this->request->data["Commit"]["project_alias"] = $payload->repository->name;						
 			
 		$this->Commit->create();
-		if ($this->Commit->save($this->request->data)) {
-			$this->Session->setFlash(__('The commit has been saved'));
-			$this->redirect(array('action' => 'index'));
+		if ($this->Commit->save($this->request->data, array('validate' => false))) {
+			echo "success";
 		} else {
-			$this->Session->setFlash(__('The commit could not be saved. Please, try again.'));
-			debug($this->Commit->invalidFields()); 
+			echo "error";
 		}
-	
+		exit();
+		//$this->autoRender = false;	
 	}
 
 /**

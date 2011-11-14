@@ -1,48 +1,18 @@
 <?php
 App::uses('AppModel', 'Model');
 /**
- * User Model
+ * DeploymentError Model
  *
- * @property Role $Role
+ * @property Deployment $Deployment
  */
-class User extends AppModel {
+class DeploymentError extends AppModel {
 /**
  * Validation rules
  *
  * @var array
  */
 	public $validate = array(
-		'username' => array(
-			'notempty' => array(
-				'rule' => array('notempty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
-		),
-		'password' => array(
-			'notempty' => array(
-				'rule' => array('notempty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
-		),
-		'email' => array(
-			'email' => array(
-				'rule' => array('email'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
-		),
-		'role_id' => array(
+		'deployment_id' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
 				//'message' => 'Your custom message here',
@@ -52,16 +22,29 @@ class User extends AppModel {
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
 		),
+		'calling_function' => array(
+			'notempty' => array(
+				'rule' => array('notempty'),
+				//'message' => 'Your custom message here',
+				//'allowEmpty' => false,
+				//'required' => false,
+				//'last' => false, // Stop validation after this rule
+				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+			),
+		),
+		'message' => array(
+			'notempty' => array(
+				'rule' => array('notempty'),
+				//'message' => 'Your custom message here',
+				//'allowEmpty' => false,
+				//'required' => false,
+				//'last' => false, // Stop validation after this rule
+				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+			),
+		),
 	);
 
-
-public function beforeSave() {
-    if (isset($this->data[$this->alias]['password'])) {
-        $this->data[$this->alias]['password'] = AuthComponent::password($this->data[$this->alias]['password']);
-    }
-    return true;
-}
-
+	//The Associations below have been created with all possible keys, those that are not needed can be removed
 
 /**
  * belongsTo associations
@@ -69,19 +52,12 @@ public function beforeSave() {
  * @var array
  */
 	public $belongsTo = array(
-		'Role' => array(
-			'className' => 'Role',
-			'foreignKey' => 'role_id',
+		'Deployment' => array(
+			'className' => 'Deployment',
+			'foreignKey' => 'deployment_id',
 			'conditions' => '',
 			'fields' => '',
 			'order' => ''
 		)
 	);
-	
-	public $hasMany = array(
-		'Commit' => array(
-			'className' => 'Commit',
-			'foreignKey' => 'created_by'
-		)
-	);	
 }

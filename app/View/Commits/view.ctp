@@ -13,7 +13,7 @@
 		</dd>
 		<dt><?php echo __('Commit Hash'); ?></dt>
 		<dd>
-			<?php echo h($commit['Commit']['commit_hash']); ?>
+			<?php echo h($commit['Commit']['hash']); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('Last Commit Msg'); ?></dt>

@@ -15,6 +15,7 @@ class DeploymentsController extends AppController {
  */
 	public function index() {
 		$this->Deployment->recursive = 0;
+		$this->Deployment->order = array('Deployment.id' => 'desc');				
 		$this->set('deployments', $this->paginate());
 	}
 
@@ -37,18 +38,19 @@ class DeploymentsController extends AppController {
  *
  * @return void
  */
-	public function add() {
-		if ($this->request->is('post')) {
-			$this->Deployment->create();
-			if ($this->Deployment->save($this->request->data)) {
-				$this->Session->setFlash(__('The deployment has been saved'));
-				$this->redirect(array('action' => 'index'));
-			} else {
-				$this->Session->setFlash(__('The deployment could not be saved. Please, try again.'));
-			}
+	public function add($project_id, $create_next_version) {
+	
+		// set data
+		$this->request->data["Deployment"]["project_id"] = $project_id;
+		$this->request->data["Deployment"]["create_next_version"] =	$create_next_version;
+	
+		$this->Deployment->create();
+		if ($this->Deployment->save($this->request->data, array('validate' => false))) {
+			$this->Session->setFlash(__('The deployment has been saved'));
+			$this->redirect(array('action' => 'index'));
+		} else {
+			$this->Session->setFlash(__('The deployment could not be saved. Please, try again.'));
 		}
-		$commits = $this->Deployment->Commit->find('list');
-		$this->set(compact('commits'));
 	}
 
 /**
@@ -72,8 +74,8 @@ class DeploymentsController extends AppController {
 		} else {
 			$this->request->data = $this->Deployment->read(null, $id);
 		}
-		$commits = $this->Deployment->Commit->find('list');
-		$this->set(compact('commits'));
+		$projects = $this->Deployment->Project->find('list');
+		$this->set(compact('projects'));
 	}
 
 /**

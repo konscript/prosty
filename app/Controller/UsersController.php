@@ -8,6 +8,34 @@ App::uses('AppController', 'Controller');
 class UsersController extends AppController {
 
 
+// action specific permissions
+    public $permissions = array(
+    	'delete' => array('editor'),
+    );     
+
+	// allow action login for everybody
+	function beforeFilter(){
+		parent::beforeFilter(); 
+		$this->Auth->allow('login');
+		$this->Auth->allow('logout');		
+	}
+
+	// basic auth
+	function login() {
+		if ($this->request->is('post')) {
+		    if ($this->Auth->login()) {
+		        $this->redirect($this->Auth->redirect());
+		    } else {
+		        $this->Session->setFlash('Your username or password was incorrect.');
+		    }
+		}
+	}
+
+	function logout() {
+		$this->redirect($this->Auth->logout());
+	}
+
+
 /**
  * index method
  *

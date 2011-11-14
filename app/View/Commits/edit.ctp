@@ -5,7 +5,7 @@
 	<?php
 		echo $this->Form->input('id');
 		echo $this->Form->input('project_id');
-		echo $this->Form->input('commit_hash');
+		echo $this->Form->input('hash');
 		echo $this->Form->input('last_commit_msg');
 		echo $this->Form->input('number_of_commits');
 		echo $this->Form->input('ip_addr');

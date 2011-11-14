@@ -4,7 +4,7 @@
 	<tr>
 			<th><?php echo $this->Paginator->sort('id');?></th>
 			<th><?php echo $this->Paginator->sort('project_id');?></th>
-			<th><?php echo $this->Paginator->sort('commit_hash');?></th>
+			<th><?php echo $this->Paginator->sort('hash');?></th>
 			<th><?php echo $this->Paginator->sort('last_commit_msg');?></th>
 			<th><?php echo $this->Paginator->sort('number_of_commits');?></th>
 			<th><?php echo $this->Paginator->sort('ip_addr');?></th>
@@ -22,7 +22,7 @@
 		<td>
 			<?php echo $this->Html->link($commit['Project']['title'], array('controller' => 'projects', 'action' => 'view', $commit['Project']['id'])); ?>
 		</td>
-		<td><?php echo h($commit['Commit']['commit_hash']); ?>&nbsp;</td>
+		<td><?php echo h($commit['Commit']['hash']); ?>&nbsp;</td>
 		<td><?php echo h($commit['Commit']['last_commit_msg']); ?>&nbsp;</td>
 		<td><?php echo h($commit['Commit']['number_of_commits']); ?>&nbsp;</td>
 		<td><?php echo h($commit['Commit']['ip_addr']); ?>&nbsp;</td>
@@ -57,9 +57,5 @@
 	<h3><?php echo __('Actions'); ?></h3>
 	<ul>
 		<li><?php echo $this->Html->link(__('New Commit'), array('action' => 'add')); ?></li>
-		<li><?php echo $this->Html->link(__('List Projects'), array('controller' => 'projects', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Project'), array('controller' => 'projects', 'action' => 'add')); ?> </li>
-		<li><?php echo $this->Html->link(__('List Deployments'), array('controller' => 'deployments', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Deployment'), array('controller' => 'deployments', 'action' => 'add')); ?> </li>
 	</ul>
 </div>

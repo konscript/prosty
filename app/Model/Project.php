@@ -159,8 +159,8 @@ class Project extends AppModel {
 			$this->query("CREATE DATABASE IF NOT EXISTS `".$this->data["Project"]["project_alias"]."-dev`");			
 			
 		// update project
-		} else{
-						
+		} else{	
+					
 			$old_data = $this->findById($this->id);
 			$Prosty->updateProject($this->data["Project"], $old_data["Project"]);
 		
@@ -174,9 +174,16 @@ class Project extends AppModel {
 		}else{
 			debug($Prosty->errors);
 			return false;
-		}
-		
-			
+		}					
+	}
+	
+	// delete virtual hosts before deleting project (not deleting folder nor db)
+	function beforeDelete(){
+		$project = $this->findById($this->id);
+		$project_alias = $project["Project"]["project_alias"];
+		unlink("/etc/nginx/sites-available/".$project_alias);
+		unlink("/etc/nginx/sites-enabled/".$project_alias);					
+		return true;
 	}
 
 /**
@@ -188,16 +195,12 @@ class Project extends AppModel {
 		'Commit' => array(
 			'className' => 'Commit',
 			'foreignKey' => 'project_id',
+		),
+		'Deployment' => array(
+			'className' => 'Deployment',
+			'foreignKey' => 'project_id',
 			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
-		)
+		)				
 	);
 
 }
