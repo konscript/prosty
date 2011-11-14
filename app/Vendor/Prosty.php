@@ -2,7 +2,7 @@
 class Prosty {
 
 	public $web_root = "/srv/www/";
-	public $service_root = APP."Vendor";
+	//public $service_root = APP."Vendor";
 	public $errors = array();
 		
 	/***************************
