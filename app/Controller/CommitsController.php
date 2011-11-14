@@ -14,7 +14,6 @@ class CommitsController extends AppController {
 		$this->Auth->allow('add');
 	}	
 
-
 	public function index() {
 		$this->Commit->recursive = 0;
 		$this->Commit->order = array('Commit.id' => 'desc');		
@@ -38,7 +37,7 @@ var $scaffold;
 	public function add() {
 	
 		if($_SERVER["REMOTE_ADDR"] == "127.0.0.1"){
-			$_REQUEST['payload'] = file_get_contents("/srv/www/prosty_cake/app/Vendor/payload");
+			$_REQUEST['payload'] = file_get_contents(APP."Vendor/payload");
 		}
 
 		// Receive the json payload string
