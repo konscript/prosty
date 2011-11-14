@@ -9,6 +9,7 @@ app/tmp/*
 app/Config/database.php
 /lib/Cake/Console/Templates/skel/tmp/
 tags
+!empty
 
 # Ignore local dev, project and system files
 .DS_Store
