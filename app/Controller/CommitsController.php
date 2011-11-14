@@ -8,11 +8,11 @@ App::uses('AppController', 'Controller');
 class CommitsController extends AppController {
 
 
-/**
- * index method
- *
- * @return void
- */
+	// public access to add commit (GitHub needs access)
+	function beforeFilter(){
+		parent::beforeFilter(); 
+		$this->Auth->allow('add');
+	}	
 
 
 	public function index() {
@@ -20,6 +20,7 @@ class CommitsController extends AppController {
 		$this->Commit->order = array('Commit.id' => 'desc');		
 		$this->set('commits', $this->paginate());
 	}
+
 
 /**
  * view method
@@ -35,7 +36,6 @@ var $scaffold;
  * @return void
  */
 	public function add() {
-	
 	
 		if($_SERVER["REMOTE_ADDR"] == "127.0.0.1"){
 			$_REQUEST['payload'] = file_get_contents("/srv/www/prosty_cake/app/Vendor/payload");
