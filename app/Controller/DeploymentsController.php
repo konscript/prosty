@@ -38,7 +38,7 @@ class DeploymentsController extends AppController {
  *
  * @return void
  */
-	public function add($project_id, $create_next_version) {
+	public function add($project_id, $create_next_version = false) {
 	
 		// set data
 		$this->request->data["Deployment"]["project_id"] = $project_id;

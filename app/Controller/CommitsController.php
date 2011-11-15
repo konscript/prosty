@@ -14,7 +14,7 @@ class CommitsController extends AppController {
 		$this->Auth->allow('add');
 	}	
 
-	public function index() {
+	public function index() {		
 		$this->Commit->recursive = 0;
 		$this->Commit->order = array('Commit.id' => 'desc');		
 		$this->set('commits', $this->paginate());
@@ -35,12 +35,13 @@ var $scaffold;
  * @return void
  */
 	public function add() {
-	
+		
+		// localhost testing: use dummy payload
 		if($_SERVER["REMOTE_ADDR"] == "127.0.0.1"){
 			$_REQUEST['payload'] = file_get_contents(APP."Vendor/payload");
 		}
 
-		// Receive the json payload string
+		// receive the json payload string
 		if(isset($_REQUEST['payload'])){
 			$payload = json_decode($_REQUEST['payload']);
 		}else{
@@ -58,10 +59,10 @@ var $scaffold;
 		));		
 		
 		// get user_id via user's email
-		$user = $this->Commit->CreatedBy->find('first', array(
+		$user = $this->Commit->CreatedBy->UserEmail->find('first', array(
 			'conditions' => array('email' => $payload->commits[$number_of_commits-1]->author->email),
 			'recursive' => -1,
-			'fields' => array('id')
+			'fields' => array('user_id')
 		));		
 
 		// data for DB
@@ -70,15 +71,17 @@ var $scaffold;
 		$this->request->data["Commit"]["last_commit_msg"] = $payload->commits[$number_of_commits-1]->message;			
 		$this->request->data["Commit"]["number_of_commits"] = $number_of_commits;			
 		$this->request->data["Commit"]["ip_addr"] = $_SERVER["REMOTE_ADDR"];		
-		$this->request->data["Commit"]["created_by"] = $user["CreatedBy"]["id"];			
-		$this->request->data["Commit"]["modified_by"] = $user["CreatedBy"]["id"];	
+		$this->request->data["Commit"]["created_by"] = $user["UserEmail"]["user_id"];			
+		$this->request->data["Commit"]["modified_by"] = $user["UserEmail"]["user_id"];	
 		
 		// data for validation
 		$this->request->data["Commit"]["branch"] = $payload->ref;
 		$this->request->data["Commit"]["account"] = $payload->repository->url;
 		$this->request->data["Commit"]["project_alias"] = $payload->repository->name;						
 			
-		$this->Commit->create();
+		// User not logged in: identify with email address
+	    $this->Commit->Behaviors->detach('WhoDidIt');
+		$this->Commit->create();		
 		if ($this->Commit->save($this->request->data, array('validate' => false))) {
 			echo "success";
 		} else {

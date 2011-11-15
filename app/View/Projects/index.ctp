@@ -30,7 +30,7 @@
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $project['Project']['id'])); ?>
 			<?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $project['Project']['id']), null, __('Are you sure you want to delete %s?', $project['Project']['title'])); ?>
 			<?php echo $this->Form->postLink(__('Deploy to new'), array('controller'=>'deployments', 'action' => 'add', $project['Project']['id'], true), null, __('Do you really want to deploy %s?', $project['Project']['title'])); ?>			
-			<?php echo $this->Form->postLink(__('Deploy to existing'), array('controller'=>'deployments', 'action' => 'add', $project['Project']['id'], false), null, __('Do you really want to deploy %s?', $project['Project']['title'])); ?>						
+			<?php echo $this->Form->postLink(__('Deploy to existing'), array('controller'=>'deployments', 'action' => 'add', $project['Project']['id'], 0), null, __('Do you really want to deploy %s?', $project['Project']['title'])); ?>						
 		</td>
 	</tr>
 <?php endforeach; ?>

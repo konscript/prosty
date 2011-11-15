@@ -78,9 +78,8 @@ class ProjectsController extends AppController {
 			$this->request->data = $this->Project->read(null, $id);					
 		}
 		
-		// get available versions
-		$Prosty = new Prosty();	
 		
+				
 		// get project alias from db	    
 		$projects = $this->Project->find('first', array(
 		    'conditions' => array('id' => $id), //array of conditions
@@ -88,8 +87,9 @@ class ProjectsController extends AppController {
 			'recursive' => -1
 		));
 	    $project_alias = $projects["Project"]["project_alias"];		
+		
 							
-		$available_versions = $Prosty->get_list_of_folders($Prosty->web_root.$project_alias."/prod");
+		$available_versions = $this->Project->get_list_of_folders($this->Project->getWebRoot().$project_alias."/prod");
 		//debug($available_versions);
 		$this->set(compact('available_versions'));		
 	}

@@ -6,6 +6,8 @@ App::uses('AppModel', 'Model');
  * @property Role $Role
  */
 class User extends AppModel {
+
+   var $displayField = 'username';
 /**
  * Validation rules
  *
@@ -82,6 +84,10 @@ public function beforeSave() {
 		'Commit' => array(
 			'className' => 'Commit',
 			'foreignKey' => 'created_by'
-		)
+		),
+		'UserEmail' => array(
+			'className' => 'UserEmail',
+			'foreignKey' => 'user_id'
+		)		
 	);	
 }

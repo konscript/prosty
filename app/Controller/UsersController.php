@@ -8,6 +8,7 @@ App::uses('AppController', 'Controller');
 class UsersController extends AppController {
 
 
+
 // action specific permissions
     public $permissions = array(
     	'delete' => array('editor'),

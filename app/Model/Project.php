@@ -1,28 +1,10 @@
 <?php
 App::uses('AppModel', 'Model');
 App::import('Vendor', 'Git');
-App::import('Vendor', 'Prosty');
-/**
- * Project Model
- *
- * @property Commit $Commit
- */
+
 class Project extends AppModel {
-/**
- * Validation rules
- *
- * @var array
- */
  
- 	var $Prosty;
- 	
- 	function getProsty(){
- 		if(!$this->Prosty){
- 			$this->Prosty = new Prosty();
-		}	
-		return $this->Prosty;
- 	}
- 		 	
+	public $actsAs = array('Prosty');		 	
 	public $validate = array(
 		'project_alias' => array(
 			'notempty' => array(
@@ -113,10 +95,8 @@ class Project extends AppModel {
 	 * Check if a folder of the name "$project_alias" exists
 	 * Validation: will fail if the folder exists
 	 ***************************************/
-    function validateProjectAliasFolder($check){
-		$Prosty = $this->getProsty();      					
-	    $path = $Prosty->web_root.$check["project_alias"];
-	    
+    function validateProjectAliasFolder($check){		      					
+	    $path = $this->getWebRoot().$check["project_alias"];	    
         return !file_exists($path); //return false if it exists
     }       	    
     
@@ -135,8 +115,7 @@ class Project extends AppModel {
 	    $project_alias = $old_data["Project"]["project_alias"];
 	    	    
 	    // get webroot from Prosty class
-		$Prosty = $this->getProsty();      					
-	    $path = $Prosty->web_root.$project_alias.'/prod/'.$check["current_version"];
+	    $path = $this->getWebRoot().$project_alias.'/prod/'.$check["current_version"];
         return file_exists($path); //return true if it exists
 
     }       
@@ -146,11 +125,11 @@ class Project extends AppModel {
      *************************************************/
 	function beforeSave($model){
 	
-		$Prosty = $this->getProsty();      					
+		      					
 		
 		// create new project
 		if(!isset($this->data["Project"]["id"])) {
-			$Prosty->createNewProject($this->data["Project"]);
+			$this->createNewProject($this->data["Project"]);
 			
 			// create prod database
 			$this->query("CREATE DATABASE IF NOT EXISTS `".$this->data["Project"]["project_alias"]."-prod`");
@@ -162,17 +141,17 @@ class Project extends AppModel {
 		} else{	
 					
 			$old_data = $this->findById($this->id);
-			$Prosty->updateProject($this->data["Project"], $old_data["Project"]);
+			$this->updateProject($this->data["Project"], $old_data["Project"]);
 		
 		}
 	
 		// success
-		if(count($Prosty->errors) == 0){
+		if(count($this->errors) == 0){
 			return true;
 			
 		// error
 		}else{
-			debug($Prosty->errors);
+			debug($this->errors);
 			return false;
 		}					
 	}

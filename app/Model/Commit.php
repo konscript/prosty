@@ -1,7 +1,6 @@
 <?php
 App::uses('AppModel', 'Model');
 App::import('Vendor', 'Git');
-App::import('Vendor', 'Prosty');
 /**
  * Commit Model
  *
@@ -10,14 +9,8 @@ App::import('Vendor', 'Prosty');
  */
 class Commit extends AppModel {
 
-   var $displayField = 'hash';
-
- 	function getProsty(){
- 		if(!$this->Prosty){
- 			$this->Prosty = new Prosty();
-		}	
-		return $this->Prosty;
- 	}
+	public $displayField = 'hash';
+	public $actsAs = array('Prosty');		 	
  	
 	/*******************
 	* Validations
@@ -112,13 +105,11 @@ class Commit extends AppModel {
 		if($this->validates()){
 		
 			$project_alias = $this->data["Commit"]["project_alias"];
-	
-			$Prosty = $this->getProsty();
-			$git_response = Git::git_callback('pull konscript master', $Prosty->web_root.$project_alias."/dev", true);
-			$Prosty->checkGitPull($git_response);   		
+			$git_response = Git::git_callback('pull konscript master', $this->web_root.$project_alias."/dev", true);
+			$this->checkGitPull($git_response);   		
 		
 			// set status - errors might have occured during git operation
-			$this->data["Commit"]["status"] = count($Prosty->errors) == 0 ? true : false;		
+			$this->data["Commit"]["status"] = count($this->errors) == 0 ? true : false;		
 		
 		// validation error	occured
 		}else{		
@@ -140,11 +131,9 @@ class Commit extends AppModel {
 	* afterSave: log errors
 	*******************/	
 	function afterSave(){
-	
-		$Prosty = $this->getProsty();
-	
+				
 		// log Prosty errors
-		foreach($Prosty->errors as $error){		
+		foreach($this->getErrors() as $error){		
 			// set values
 			$this->data["CommitError"]["commit_id"] = $this->data["Commit"]["id"];			
 			$this->data["CommitError"]["message"] = $error["message"];
