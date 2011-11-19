@@ -133,7 +133,15 @@ class Deployment extends AppModel {
 			'conditions' => '',
 			'fields' => '',
 			'order' => ''
-		)
+		),
+		'User' => array(
+			'className' => 'User',
+			'foreignKey' => 'created_by',
+		),
+		'ModifiedBy' => array(
+			'className' => 'User',
+			'foreignKey' => 'modified_by',
+		)	
 	);
 	
 	public $hasMany = array(

@@ -1,42 +1,35 @@
-<div class="commits index">
+<div class="deployments">
+	<div class="actions testCommit"><ul>
+		<li><?php echo $this->Html->link(__('Test Commit'), array('action' => 'add')); ?></li>
+	</ul></div>
 	<h2><?php echo __('Commits');?></h2>
 	<table cellpadding="0" cellspacing="0">
 	<tr>
-			<th><?php echo $this->Paginator->sort('id');?></th>
-			<th><?php echo $this->Paginator->sort('project_id');?></th>
-			<th><?php echo $this->Paginator->sort('hash');?></th>
+			<th><?php echo $this->Paginator->sort('project_id');?></th>	
 			<th><?php echo $this->Paginator->sort('last_commit_msg');?></th>
-			<th><?php echo $this->Paginator->sort('number_of_commits');?></th>
-			<th><?php echo $this->Paginator->sort('ip_addr');?></th>
 			<th><?php echo $this->Paginator->sort('created');?></th>
-			<th><?php echo $this->Paginator->sort('modified');?></th>
 			<th><?php echo $this->Paginator->sort('created_by');?></th>
-			<th><?php echo $this->Paginator->sort('modified_by');?></th>
 			<th class="actions"><?php echo __('Actions');?></th>
 	</tr>
+	
 	<?php
 	$i = 0;
-	foreach ($commits as $commit): ?>
-	<tr>
-		<td><?php echo h($commit['Commit']['id']); ?>&nbsp;</td>
+
+	foreach ($commits as $commit): 	
+		$tr_class = $commit["Commit"]["status"] == 1 ? "success" : "error";	?>	
+	
+	<tr class="<?=$tr_class; ?>">
 		<td>
 			<?php echo $this->Html->link($commit['Project']['title'], array('controller' => 'projects', 'action' => 'view', $commit['Project']['id'])); ?>
 		</td>
-		<td><?php echo h($commit['Commit']['hash']); ?>&nbsp;</td>
 		<td><?php echo h($commit['Commit']['last_commit_msg']); ?>&nbsp;</td>
-		<td><?php echo h($commit['Commit']['number_of_commits']); ?>&nbsp;</td>
-		<td><?php echo h($commit['Commit']['ip_addr']); ?>&nbsp;</td>
 		<td><?php echo h($commit['Commit']['created']); ?>&nbsp;</td>
-		<td><?php echo h($commit['Commit']['modified']); ?>&nbsp;</td>
-		<td><?php echo h($commit['Commit']['created_by']); ?>&nbsp;</td>
-		<td><?php echo h($commit['Commit']['modified_by']); ?>&nbsp;</td>
+		<td><?php echo $this->Html->link($commit['User']['username'], array('controller' => 'users', 'action' => 'view', $commit['User']['id'])); ?></td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $commit['Commit']['id'])); ?>
-			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $commit['Commit']['id'])); ?>
-			<?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $commit['Commit']['id']), null, __('Are you sure you want to delete # %s?', $commit['Commit']['id'])); ?>
 		</td>
 	</tr>
-<?php endforeach; ?>
+	<?php endforeach; ?>
 	</table>
 	<p>
 	<?php
@@ -52,10 +45,4 @@
 		echo $this->Paginator->next(__('next') . ' >', array(), null, array('class' => 'next disabled'));
 	?>
 	</div>
-</div>
-<div class="actions">
-	<h3><?php echo __('Actions'); ?></h3>
-	<ul>
-		<li><?php echo $this->Html->link(__('New Commit'), array('action' => 'add')); ?></li>
-	</ul>
 </div>

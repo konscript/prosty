@@ -167,7 +167,7 @@ class Commit extends AppModel {
 			'className' => 'Project',
 			'foreignKey' => 'project_id',
 		),
-		'CreatedBy' => array(
+		'User' => array(
 			'className' => 'User',
 			'foreignKey' => 'created_by',
 		),
