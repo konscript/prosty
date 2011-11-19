@@ -240,6 +240,28 @@ class GitRepo {
 		$status = trim(proc_close($resource));
 		return ($status != 127);
 	}
+	
+	
+	//added by sqren
+    public function git_run_with_validation($command) {
+		$descriptorspec = array(
+			1 => array('pipe', 'w'),
+			2 => array('pipe', 'w'),
+		);
+		$pipes = array();
+		$resource = proc_open('git '.$command, $descriptorspec, $pipes, $this->repo_path);
+
+
+		$stdout = stream_get_contents($pipes[1]);
+		$stderr = stream_get_contents($pipes[2]);
+		foreach ($pipes as $pipe) {
+			fclose($pipe);
+		}				
+		        	
+		$status = trim(proc_close($resource));
+		
+		return array($status, $stdout, $stderr);	    
+	}	
 
 	/**
 	 * Run a command in the git repository

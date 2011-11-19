@@ -104,12 +104,12 @@ class Commit extends AppModel {
 		// all validations passed
 		if($this->validates()){
 		
-			$project_alias = $this->data["Commit"]["project_alias"];
-			$git_response = Git::git_callback('pull konscript master', $this->web_root.$project_alias."/dev", true);
-			$this->checkGitPull($git_response);   		
-		
+			$project_alias = $this->data["Commit"]["project_alias"];			
+			$repo = Git::open($this->getWebRoot().$project_alias."/dev");			
+			$this->GitPull($repo);																	
+						
 			// set status - errors might have occured during git operation
-			$this->data["Commit"]["status"] = count($this->errors) == 0 ? true : false;		
+			$this->data["Commit"]["status"] = count($this->getErrors()) == 0 ? true : false;		
 		
 		// validation error	occured
 		}else{		

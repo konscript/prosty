@@ -1,6 +1,5 @@
 <?php
 App::uses('AppController', 'Controller');
-App::import('Vendor', 'Prosty');
 /**
  * Projects Controller
  *

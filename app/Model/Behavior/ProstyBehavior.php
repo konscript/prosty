@@ -30,6 +30,7 @@ class ProstyBehavior extends ModelBehavior {
 		$repo->run('remote add konscript '. $this->getGitRemote($Model, $project_alias)); 	// add remote
 		$repo->run('config branch.master.remote konscript');				// set Konscript as the default remote
 		$repo->run('config branch.master.merge refs/heads/master');			// set master as the default branch to pull from	
+		$repo->run('commit --allow-empty -m "empty commit"');			// add empty commit to create master branch			
 		
 		// wordpress: download and extract latest version
 		if(isset($data["wordpress"]) && $data["wordpress"] == true){
@@ -190,12 +191,62 @@ class ProstyBehavior extends ModelBehavior {
 		);	
 	}  		
 	
-	// Analyze the return code from the "git pull" command
-    function checkGitPull($Model, $git_response){
+	// log git commands if they return error 
+    function validateGitResponse($Model, $git_response){
         if($git_response[0]>0){
-	        $this->logError($Model, $git_response[1], __function__);     
+        	$error = $git_response[1]."\n";
+        	$error .= $git_response[2];        	
+	        $this->logError($Model, $error, __function__);     
         }
     }    		
+    
+    // pull from GitHub - check for errors during and revert if anything fails
+	function GitPull($Model, $repo){	
+	
+		// create tmp branch
+		echo "Create branch";
+		$create_branch = $repo->git_run_with_validation('branch tmp');
+		debug($create_branch);
+		$this->validateGitResponse($Model, $create_branch);
+
+		// checkout tmp branch
+		echo "Checkout tmp";
+		$checkout_branch = $repo->git_run_with_validation('checkout tmp');
+		debug($checkout_branch);
+		$this->validateGitResponse($Model, $checkout_branch);
+
+
+		// attempt pull
+		if(count($this->errors) == 0){
+			echo "Git pull";
+			$pull = $repo->git_run_with_validation('pull konscript master');
+			debug($pull);
+			$this->validateGitResponse($Model, $pull);			
+		}
+
+		// checkout master
+		echo "Checkout master";
+		$checkout_master = $repo->git_run_with_validation('checkout master -f');
+		debug($checkout_master);
+		$this->validateGitResponse($Model, $checkout_master);	
+
+		// merge master with tmp if no previous errors
+		if(count($this->errors) == 0){
+			echo "merge with tmp";	
+			$merge = $repo->git_run_with_validation('merge tmp');	
+			debug($merge);	
+			$this->validateGitResponse($Model, $merge);		
+		}
+
+		// delete tmp
+		echo "Delete branch";
+		$delete_branch = $repo->git_run_with_validation('branch tmp -D');
+		debug($delete_branch);	
+		$this->validateGitResponse($Model, $delete_branch);	
+		
+		debug($this->errors);
+	}	
+    
  	
 	// return git remote
 	function getGitRemote($Model, $project_alias){

@@ -38,22 +38,22 @@ class Deployment extends AppModel {
 				$this->recursive_copy($versions["current"], $versions["next"]);         
 				   												
 				// git pull
-				$git_response = Git::git_callback('pull konscript master', $versions['next'], true);			
+				$repo = Git::open($versions['next']);			
+				$this->GitPull($repo);									
 				
 				// set deployed version
 				$this->data["Deployment"]["deployed_version"] = basename($versions["next"]);				
 		
 			// update current version
 			}else{
+			
 				// git pull
-				$git_response = Git::git_callback('pull konscript master', $versions['current'], true);			
+				$repo = Git::open($versions['current']);
+				$this->GitPull($repo);					
 				
 				// set deployed version
 				$this->data["Deployment"]["deployed_version"] = basename($versions["current"]);								
-			}
-	
-			// log possible errors for git action
-			$this->checkGitPull($git_response);  		
+			}		
 	
 			// clear cache for current project (only if cache is enabled!)			
 			$project = $this->Project->findById($project_id);
@@ -61,9 +61,8 @@ class Deployment extends AppModel {
 				$this->clearCache($project_id);
 			}
 
-
 			// set error status - errors might have occured during git
-			$this->data["Deployment"]["status"] = count($this->errors) == 0 ? true : false;		
+			$this->data["Deployment"]["status"] = count($this->getErrors()) === 0 ? true : false;		
 		}else{
 			// remove invalid fields from array
 			foreach($this->invalidFields() as $errorName => $error){		
@@ -89,7 +88,7 @@ class Deployment extends AppModel {
 		if($this->data["Deployment"]["status"]	== false){
 
 			// log Prosty errors
-			foreach($this->errors as $error){		
+			foreach($this->getErrors() as $error){		
 				// set values
 				$this->data["DeploymentError"]["deployment_id"] = $this->data["Deployment"]["id"];			
 				$this->data["DeploymentError"]["message"] = $error["message"];

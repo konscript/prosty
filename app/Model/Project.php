@@ -88,7 +88,7 @@ class Project extends AppModel {
      * Validation: check if a Github account has been created
      *************************************************/
 	function checkGithub($check) {
-        return Git::git_check_repository('ls-remote -h '.Prosty::getGitRemote($check["project_alias"]).'.git' );        
+        return Git::git_check_repository('ls-remote -h '.$this->getGitRemote($check["project_alias"]).'.git' );        
 	}
 	
 	/**
@@ -146,12 +146,12 @@ class Project extends AppModel {
 		}
 	
 		// success
-		if(count($this->errors) == 0){
+		if(count($this->getErrors()) == 0){
 			return true;
 			
 		// error
 		}else{
-			debug($this->errors);
+			debug($this->getErrors());
 			return false;
 		}					
 	}
