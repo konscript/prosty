@@ -1,9 +1,12 @@
 <?php
 class ProstyBehavior extends ModelBehavior {
 
-	public $web_root = "/srv/www/";
-	//public $service_root = APP."Vendor";
+	public $web_root = "/srv/www/";	
 	public $errors = array();
+	
+	function getServiceRoot(){
+		return APP."Vendor/";	
+	}
 	
 	function getErrors($Model){
 		return $this->errors;
@@ -16,10 +19,11 @@ class ProstyBehavior extends ModelBehavior {
 	* create new project
 	***************************/	
 	function createNewProject($Model, $data){
+
 		// set variables
 		$project_alias = $data['project_alias'];
 		$full_path_to_project = $this->web_root.$project_alias;     
-			
+
 		// create project root - 02770: leading zero is required; 2 is the sticky bit (set guid); 770 is rwx,rwx,---
 		mkdir($full_path_to_project, 02770);
 
@@ -31,11 +35,14 @@ class ProstyBehavior extends ModelBehavior {
 		$repo->run('config branch.master.remote konscript');				// set Konscript as the default remote
 		$repo->run('config branch.master.merge refs/heads/master');			// set master as the default branch to pull from	
 		$repo->run('commit --allow-empty -m "empty commit"');			// add empty commit to create master branch			
+
 		
 		// wordpress: download and extract latest version
 		if(isset($data["wordpress"]) && $data["wordpress"] == true){
 			$this->wp_get_latest($Model, $project_alias);
 		}
+
+		
 		
 		// create prod: clone dev to prod
 		$full_path_to_prod = $full_path_to_project."/prod";
@@ -274,7 +281,7 @@ class ProstyBehavior extends ModelBehavior {
 		if($hostname){
 			echo $project_alias;	
 			set_time_limit(360);
-			$command = $this->service_root."wkhtmltoimage --height 1024 $hostname ".$this->service_root."img/screenshots/".$project_alias.".jpg";
+			$command = $this->getServiceRoot()."wkhtmltoimage --height 1024 $hostname ".$this->getServiceRoot()."img/screenshots/".$project_alias.".jpg";
 			exec($command, $status_msg, $status_code);
 			return array($status_msg, $status_code);
 		}else{
@@ -293,10 +300,10 @@ class ProstyBehavior extends ModelBehavior {
   
 	// download and extract latest version of wordpress to prod and dev	
 	function wp_get_latest($Model, $project_alias) {
-		
-		$command = $this->service_root."bash/download_wordpress.sh ".$project_alias;
-		exec("$command 2>&1", $output, $return_code);		
 
+		$command = $this->getServiceRoot()."bash/download_wordpress.sh ".$project_alias;
+		exec("$command 2>&1", $output, $return_code);		
+		
 		// something went wrong!
 		if($return_code != 0){
 		
@@ -334,11 +341,11 @@ class ProstyBehavior extends ModelBehavior {
 
 		if(is_dir($path)){
 			// create files
-			$command = $this->service_root."bash/download_project.sh $project_alias $path $dbname";
+			$command = $this->getServiceRoot()."bash/download_project.sh $project_alias $path $dbname";
 			exec("$command  2>&1", $output, $return_code);	
 			$pathToTar = "/temp/".$project_alias.".tar";
 
-			if(in_array("success", $output) && $return_code == 0 && is_file($this->service_root.$pathToTar)){	
+			if(in_array("success", $output) && $return_code == 0 && is_file($this->getServiceRoot().$pathToTar)){	
 				header("Location: $pathToTar");
 			}else{
 				echo "return code: ".$return_code."<br>";
