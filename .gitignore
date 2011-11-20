@@ -16,4 +16,4 @@ tags
 !empty
 nbproject/*
 *.*~
-
+app/webroot/.sass-cache/*
