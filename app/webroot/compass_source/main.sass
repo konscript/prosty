@@ -1,0 +1,156 @@
+//
+// Main (main.scss)
+//
+
+@import "_base"
+
+@import "compass/css3/box-shadow"
+@import "compass/css3/border-radius"
+
+body.bp
+	+blueprint-typography(true)
+	+blueprint-utilities
+	+blueprint-debug
+	+blueprint-interaction
+	
+form.bp
+	+blueprint-form
+	
+body
+	background: rgb(245, 245, 245)
+	color: #333
+	font: 13px 'Helvetica Neue', Helvetica, Arial, sans-serif
+	
+#header-before
+	background: #000
+	height: 1px
+	
+#header-wrapper
+	$bg_top: rgb(72, 72, 72)
+	$bg_bottom: rgb(35, 35, 35)
+	
+	+background(linear-gradient(color-stops($bg_top, $bg_bottom)))
+	border:
+		bottom: 1px solid #000
+		top: 1px solid rgb(118, 118, 118)
+	
+	#header
+		+container
+		
+		height: 50px
+		
+		h1#logo
+			background: url('../img/logo2.png') no-repeat
+			color: transparent
+			+column(5)
+			+append(1)
+			height: 30px
+			margin:
+				top: 10px
+		
+		nav#main-navigation
+			$border_a: rgb(71, 71, 71)
+			$border_b: rgb(37, 37, 37)
+		
+			+column(18)
+			+last
+			
+			ul
+				border-left: 1px solid $border_b
+				border-right: 1px solid $border_a
+				float: right
+				list-style: none
+				height: 50px
+			
+				li
+					border-left: 1px solid $border_a
+					border-right: 1px solid $border_b
+					float: left
+					height: 14px
+					padding: 18px 12px
+				
+					a
+						color: #fff
+						font-size: 13px
+						font-weight: bold
+						text-decoration: none
+						
+					&:hover
+						+background(linear-gradient(color-stops(1.1 * $bg_top, 1.1* $bg_bottom)))
+	
+	
+#content-wrapper
+	margin-top: 20px
+	
+	#content
+		+container
+	
+//--------- VARIABLES ---------//
+$main-color-link: rgb(57, 110, 156)
+
+//--------- ELEMENTS ---------//
+
+h1
+	font-size: 28px
+
+h2
+	font-size: 22px
+	
+h3
+	font-size: 18px
+	
+h4
+	font-size: 16px
+
+a
+	color: $main-color-link
+	text-decoration: none
+	
+	&:hover
+		color: 1.2 * $main-color-link
+		
+		
+table
+	border: 1px solid rgb(221, 221, 221)
+	+span(24)
+	
+	thead
+		tr
+			background: rgb(242, 242, 242)
+			
+			th, td
+				border-bottom: 1px solid rgb(196, 196, 196)
+				color: rgb(102, 102, 102)
+				font-size: 10px
+				font-weight: bold
+				padding: 8px
+				text-transform: uppercase
+				
+				a
+					color: rgb(102, 102, 102)
+
+	tbody
+		tr
+			&:nth-child(odd) td
+				background: #fff
+		
+			&:nth-child(even) td
+				background: rgb(250, 250, 250)
+				
+			td
+				color: rgb(104, 104, 104)
+				border-bottom: 1px solid rgb(242, 242, 242)
+				padding: 8px
+				
+				&:last-child
+					border-bottom: none
+
+div.table-pagination
+	margin-bottom: 10px
+	+span(24)
+
+
+//--------- UTILITIES ---------//
+
+.clear
+	clear: both

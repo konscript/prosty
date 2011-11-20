@@ -1,6 +1,7 @@
 <div class="deployments">
 	<h2><?php echo __('Deployments');?></h2>
 	<table cellpadding="0" cellspacing="0">
+	<thead>
 	<tr>
 			<th><?php echo $this->Paginator->sort('project_id');?></th>
 			<th><?php echo $this->Paginator->sort('deployed_version');?></th>
@@ -8,6 +9,8 @@
 			<th><?php echo $this->Paginator->sort('created_by');?></th>			
 			<th class="actions"><?php echo __('Actions');?></th>
 	</tr>
+	</thead>
+	<tbody>
 	<?php
 	$i = 0;
 	foreach ($deployments as $deployment): 
@@ -22,6 +25,7 @@
 		<td class="actions"><?php echo $this->Html->link(__('View'), array('action' => 'view', $deployment['Deployment']['id'])); ?></td>
 	</tr>
 <?php endforeach; ?>
+	</tbody>
 	</table>
 	<p>
 	<?php
