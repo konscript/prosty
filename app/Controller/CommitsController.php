@@ -43,41 +43,12 @@ var $scaffold;
 
 		// receive the json payload string
 		if(isset($_REQUEST['payload'])){
-			$payload = json_decode($_REQUEST['payload']);
+			$this->request->data["payload"] = json_decode($_REQUEST['payload']);
 		}else{
 			$this->Session->setFlash(__('No payload was received'));
 			$this->redirect(array('action' => 'index'));
 		}					
-				
-		$number_of_commits = count($payload->commits);
-
-		// get project_id via project_alias
-		$projects = $this->Commit->Project->find('first', array(
-			'conditions' => array('project_alias' => $payload->repository->name),
-			'recursive' => -1,
-			'fields' => array('id')
-		));		
-		
-		// get user_id via user's email
-		$user = $this->Commit->CreatedBy->UserEmail->find('first', array(
-			'conditions' => array('email' => $payload->commits[$number_of_commits-1]->author->email),
-			'recursive' => -1,
-			'fields' => array('user_id')
-		));		
-
-		// data for DB
-		$this->request->data["Commit"]["project_id"] = $projects["Project"]["id"];						
-		$this->request->data["Commit"]["hash"] = $payload->after;			
-		$this->request->data["Commit"]["last_commit_msg"] = $payload->commits[$number_of_commits-1]->message;			
-		$this->request->data["Commit"]["number_of_commits"] = $number_of_commits;			
-		$this->request->data["Commit"]["ip_addr"] = $_SERVER["REMOTE_ADDR"];		
-		$this->request->data["Commit"]["created_by"] = $user["UserEmail"]["user_id"];			
-		$this->request->data["Commit"]["modified_by"] = $user["UserEmail"]["user_id"];	
-		
-		// data for validation
-		$this->request->data["Commit"]["branch"] = $payload->ref;
-		$this->request->data["Commit"]["account"] = $payload->repository->url;
-		$this->request->data["Commit"]["project_alias"] = $payload->repository->name;						
+											
 			
 		// User not logged in: identify with email address
 	    $this->Commit->Behaviors->detach('WhoDidIt');

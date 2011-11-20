@@ -10,7 +10,43 @@ App::import('Vendor', 'Git');
 class Commit extends AppModel {
 
 	public $displayField = 'hash';
-	public $actsAs = array('Prosty');		 	
+	public $actsAs = array('Prosty');	
+	
+function beforeValidate(){
+	$payload = $this->data["Commit"]["payload"];
+
+	$number_of_commits = count($payload->commits);
+
+	// get project_id via project_alias
+	$projects = $this->Project->find('first', array(
+		'conditions' => array('project_alias' => $payload->repository->name),
+		'recursive' => -1,
+		'fields' => array('id')
+	));		
+	
+	// get user_id via user's email
+	$user = $this->CreatedBy->UserEmail->find('first', array(
+		'conditions' => array('email' => $payload->pusher->email),
+		'recursive' => -1,
+		'fields' => array('user_id')
+	));		
+
+	// data for DB
+	$this->data["Commit"]["project_id"] = $projects["Project"]["id"];						
+	$this->data["Commit"]["hash"] = $payload->after;			
+	$this->data["Commit"]["last_commit_msg"] = $payload->commits[$number_of_commits-1]->message;			
+	$this->data["Commit"]["number_of_commits"] = $number_of_commits;			
+	$this->data["Commit"]["ip_addr"] = $_SERVER["REMOTE_ADDR"];		
+	$this->data["Commit"]["created_by"] = $user["UserEmail"]["user_id"];			
+	$this->data["Commit"]["modified_by"] = $user["UserEmail"]["user_id"];	
+	
+	// data for validation
+	$this->data["Commit"]["branch"] = $payload->ref;
+	$this->data["Commit"]["account"] = $payload->repository->url;
+	$this->data["Commit"]["project_alias"] = $payload->repository->name;		
+	
+	return true;
+}	 	
  	
 	/*******************
 	* Validations
