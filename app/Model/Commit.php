@@ -37,8 +37,8 @@ function beforeValidate(){
 	$this->data["Commit"]["last_commit_msg"] = $payload->commits[$number_of_commits-1]->message;			
 	$this->data["Commit"]["number_of_commits"] = $number_of_commits;			
 	$this->data["Commit"]["ip_addr"] = $_SERVER["REMOTE_ADDR"];		
-	$this->data["Commit"]["created_by"] = $user["UserEmail"]["user_id"];			
-	$this->data["Commit"]["modified_by"] = $user["UserEmail"]["user_id"];	
+	$this->data["Commit"]["created_by"] = $user["UserEmail"]["user_id"];
+	$this->data["Commit"]["modified_by"] = $user["UserEmail"]["user_id"];
 	
 	// data for validation
 	$this->data["Commit"]["branch"] = $payload->ref;
@@ -85,11 +85,11 @@ function beforeValidate(){
 		'created_by' => array(
 			'rule' => array('numeric'),
 			'message' => 'Email not recognized'
-		),		
+		),
 		'modified_by' => array(
 			'rule' => array('numeric'),
-		),				
-		
+			'message' => 'Email not recognized'
+		),		
 		// udelukkende validering - indsættes ikke i db
 		'branch' => array(
 			'rule' => array('validateBranch'),
