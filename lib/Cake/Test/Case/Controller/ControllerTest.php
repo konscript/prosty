@@ -102,7 +102,7 @@ class ControllerPost extends CakeTestModel {
  * @param array $options
  * @return void
  */
-	public function find($type, $options = array()) {
+	public function find($type = 'first', $options = array()) {
 		if ($type == 'popular') {
 			$conditions = array($this->name . '.' . $this->primaryKey .' > ' => '1');
 			$options = Set::merge($options, compact('conditions'));
@@ -967,7 +967,8 @@ class ControllerTest extends CakeTestCase {
 		$TestController = new TestController($request);
 		$TestController->setAction('index', 1, 2);
 		$expected = array('testId' => 1, 'test2Id' => 2);
-		$this->assertidentical($TestController->data, $expected);
+		$this->assertSame($expected, $TestController->request->data);
+		$this->assertSame('index', $TestController->view);
 	}
 
 /**

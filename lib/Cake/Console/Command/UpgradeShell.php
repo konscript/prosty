@@ -102,7 +102,7 @@ class UpgradeShell extends Shell {
 	public function tests() {
 		$this->_paths = array(APP . 'tests' . DS);
 		if (!empty($this->params['plugin'])) {
-			$this->_paths = App::pluginPath($this->params['plugin']) . 'tests' . DS;
+			$this->_paths = array(App::pluginPath($this->params['plugin']) . 'tests' . DS);
 		}
 		$patterns = array(
 			array(
@@ -214,6 +214,9 @@ class UpgradeShell extends Shell {
 		}
 
 		$patterns = array();
+		App::build(array(
+			'View/Helper' => App::core('View/Helper'),
+		), App::APPEND);
 		$helpers = App::objects('helper');
 		$plugins = App::objects('plugin');
 		$pluginHelpers = array();
@@ -225,6 +228,7 @@ class UpgradeShell extends Shell {
 		}
 		$helpers = array_merge($pluginHelpers, $helpers);
 		foreach ($helpers as $helper) {
+			$helper = preg_replace('/Helper$/', '', $helper);
 			$oldHelper = strtolower(substr($helper, 0, 1)).substr($helper, 1);
 			$patterns[] = array(
 				"\${$oldHelper} to \$this->{$helper}",
@@ -513,6 +517,43 @@ class UpgradeShell extends Shell {
 	}
 
 /**
+ * Replace cakeError with built-in exceptions.
+ * NOTE: this ignores calls where you've passed your own secondary parameters to cakeError().
+ * @return void
+ */
+	public function exceptions() {
+		$controllers = array_diff(App::path('controllers'), App::core('controllers'), array(APP));
+		$components = array_diff(App::path('components'), App::core('components'));
+
+		$this->_paths = array_merge($controllers, $components);
+
+		if (!empty($this->params['plugin'])) {
+			$pluginPath = App::pluginPath($this->params['plugin']);
+			$this->_paths = array(
+				$pluginPath . 'controllers' . DS,
+				$pluginPath . 'controllers' . DS . 'components' .DS,
+			);
+		}
+		$patterns = array(
+			array(
+				'$this->cakeError("error400") -> throw new BadRequestException()',
+				'/(\$this->cakeError\(["\']error400["\']\));/',
+				'throw new BadRequestException();'
+			),
+			array(
+				'$this->cakeError("error404") -> throw new NotFoundException()',
+				'/(\$this->cakeError\(["\']error404["\']\));/',
+				'throw new NotFoundException();'
+			),
+			array(
+				'$this->cakeError("error500") -> throw new InternalErrorException()',
+				'/(\$this->cakeError\(["\']error500["\']\));/',
+				'throw new InternalErrorException();'
+			),
+		);
+		$this->_filesRegexpUpdate($patterns);
+	}
+/**
  * Move application views files to where they now should be
  *
  * Find all view files in the folder and determine where cake expects the file to be
@@ -661,11 +702,11 @@ class UpgradeShell extends Shell {
  * @return void
  */
 	protected function _findFiles($extensions = '') {
+		$this->_files = array();
 		foreach ($this->_paths as $path) {
 			if (!is_dir($path)) {
 				continue;
 			}
-			$this->_files = array();
 			$Iterator = new RegexIterator(
 				new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path)),
 				'/^.+\.(' . $extensions . ')$/i',
@@ -771,6 +812,10 @@ class UpgradeShell extends Shell {
 			))
 			->addSubcommand('components', array(
 				'help' => __d('cake_console', 'Update components to extend Component class.'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('exceptions', array(
+				'help' => __d('cake_console', 'Replace use of cakeError with exceptions.'),
 				'parser' => $subcommandParser
 			));
 	}
