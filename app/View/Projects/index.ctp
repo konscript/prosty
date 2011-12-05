@@ -1,6 +1,7 @@
 <div class="projects index">
 	<h2><?php echo __('Projects');?></h2>
 	<table cellpadding="0" cellspacing="0">
+	<thead>
 	<tr>
 
 			<th><?php echo $this->Paginator->sort('title');?></th>
@@ -12,6 +13,8 @@
 			<th><?php echo $this->Paginator->sort('errors');?></th>
 			<th class="actions"><?php echo __('Actions');?></th>
 	</tr>
+	</thead>
+	<tbody>
 	<?php
 	$i = 0;
 	foreach ($projects as $project): ?>
@@ -34,6 +37,7 @@
 		</td>
 	</tr>
 <?php endforeach; ?>
+	</tbody>
 	</table>
 	<p>
 	<?php
