@@ -1,0 +1,45 @@
+//
+// Base (_base.sass)
+// Partial for initializing common variables, importing utilities and setting up the framework
+//
+
+// Configure blueprint
+$blueprint-grid-columns: 24
+$blueprint-container-size: 950px
+$blueprint-grid-margin: 10px
+
+// Use this to calculate the width based on the total width.
+// Or you can set $blueprint-grid-width to a fixed value and unset $blueprint-container-size -- it will be calculated for you.
+$blueprint-grid-width: ($blueprint-container-size + $blueprint-grid-margin) / $blueprint-grid-columns - $blueprint-grid-margin
+
+
+// Load compass tools, utilities and blueprint modules
+@import "blueprint"
+@import "blueprint/reset"
+
+// Color
+$color-primary: #000000		// Black
+$color-primary-b: #535353 	// Dark Grey
+$color-primary-c: #7f7f7f 	// Light Grey
+$color-secondary: #fff		// White
+$color-tertiary: #fff		// White
+
+$font-color: $color-primary
+$link-color: #a00e2e
+
+
+// Typography
+$typography-family-primary: 'Verdana', Arial, Helvetica, sans-serif
+$typography-size-header: 161px
+$typography-size-subheader: 141px
+$typography-size-normal: 12px
+
+
+
+// Fonts
+$blueprint-font-family: $typography-family-primary
+$blueprint-font-size: $typography-size-normal
+@import "blueprint/typography"
+
+// debug
+//@import "blueprint/debug"
