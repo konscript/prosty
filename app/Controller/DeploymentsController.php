@@ -38,11 +38,10 @@ class DeploymentsController extends AppController {
  *
  * @return void
  */
-	public function add($project_id, $create_next_version = false) {
+	public function add($project_id) {
 	
 		// set data
 		$this->request->data["Deployment"]["project_id"] = $project_id;
-		$this->request->data["Deployment"]["create_next_version"] =	$create_next_version;
 	
 		$this->Deployment->create();
 		if ($this->Deployment->save($this->request->data, array('validate' => false))) {

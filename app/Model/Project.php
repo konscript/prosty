@@ -49,14 +49,6 @@ class Project extends AppModel {
 				'rule' => array('boolean'),
 			),
 		),
-		'current_version' => array(
-			'folder' => array(
-				'rule' => array('validateVersionFolder'),
-				'message' => 'Invalid version chosen - it seems it does not exist',				
-				'required' => false,				
-				'on' => 'update', // Limit validation 'update' operations
-			),
-		),
 		'screenshot' => array(
 			'boolean' => array(
 				'rule' => array('boolean'),
@@ -97,51 +89,27 @@ class Project extends AppModel {
 	 ***************************************/
     function validateProjectAliasFolder($check){		      					
 	    $path = $this->getWebRoot().$check["project_alias"];	    
-        return !file_exists($path); //return false if it exists
+	    // TODO: $path = $this->getProjectPath($project_id);
+      return !file_exists($path); //return false if it exists
     }       	    
     
-	/**
-	 * Check whether the chosen version's folder exists
-	 * Validation: will fail if the folder does NOT exist
-	 ***************************************/
-    function validateVersionFolder($check){
-
-		// get project alias from db	    
-		$old_data = $this->find('first', array(
-		    'conditions' => array('id' => $this->id), //array of conditions
-			'fields' => array('project_alias'),
-			'recursive' => -1
-		));
-	    $project_alias = $old_data["Project"]["project_alias"];
-	    	    
-	    // get webroot from Prosty class
-	    $path = $this->getWebRoot().$project_alias.'/prod/'.$check["current_version"];
-        return file_exists($path); //return true if it exists
-
-    }       
+   
     		
     /**
      * beforeSave: executes after valdiations and before save
      *************************************************/
 	function beforeSave($model){
-	
-		      					
-		
+			      							
 		// create new project
 		if(!isset($this->data["Project"]["id"])) {
 			$this->createNewProject($this->data["Project"]);
 			
-			// create prod database
-			$this->query("CREATE DATABASE IF NOT EXISTS `".$this->data["Project"]["project_alias"]."-prod`");
-	
-			// create dev database
-			$this->query("CREATE DATABASE IF NOT EXISTS `".$this->data["Project"]["project_alias"]."-dev`");			
+			// create database
+			$this->query("CREATE DATABASE IF NOT EXISTS ".$this->data["Project"]["project_alias"]."");			
 			
 		// update project
 		} else{	
 					
-			$old_data = $this->findById($this->id);
-			$this->updateProject($this->data["Project"], $old_data["Project"]);
 		
 		}
 	

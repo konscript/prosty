@@ -9,15 +9,7 @@ class Deployment extends AppModel {
 			'numeric' => array(
 				'rule' => array('numeric'),
 				'message' => 'Project id must be numeric',
-			),
-			'currentVersion' => array(
-				'rule' => array('validateCurrentVersion'),
-				'message' => 'The current version could not be found'
-			),			
-			'nextVersion' => array(
-				'rule' => array('validateNextVersion'),
-				'message' => 'The next version already exists'
-			),						
+			)				
 		)
 	);
 		
@@ -27,39 +19,10 @@ class Deployment extends AppModel {
 	function beforeSave(){
 	
 		$project_id = $this->data["Deployment"]["project_id"];
-		$versions = $this->getVersionPaths($project_id);
 			
 		if($this->validates()){	
 						
-			// create new version
-			if(isset($this->data["Deployment"]["create_next_version"]) && $this->data["Deployment"]["create_next_version"] == true){
-			
-				// clone current version
-				$this->recursive_copy($versions["current"], $versions["next"]);         
-				   												
-				// git pull
-				$repo = Git::open($versions['next']);			
-				$this->GitPull($repo);									
-				
-				// set deployed version
-				$this->data["Deployment"]["deployed_version"] = basename($versions["next"]);				
-		
-			// update current version
-			}else{
-			
-				// git pull
-				$repo = Git::open($versions['current']);
-				$this->GitPull($repo);					
-				
-				// set deployed version
-				$this->data["Deployment"]["deployed_version"] = basename($versions["current"]);								
-			}		
-	
-			// clear cache for current project (only if cache is enabled!)			
-			$project = $this->Project->findById($project_id);
-			if($project["Project"]["use_cache"] === 1){
-				$this->clearCache($project_id);
-			}
+			// TODO: make curl request to Brutus - receive status code and response
 
 			// set error status - errors might have occured during git
 			$this->data["Deployment"]["status"] = count($this->getErrors()) === 0 ? true : false;		
@@ -82,7 +45,6 @@ class Deployment extends AppModel {
 	function afterSave(){
 	
 		$project_id = $this->data["Deployment"]["project_id"];
-		$versions = $this->getVersionPaths($project_id);		
 				
 		// errors occured during deployment
 		if($this->data["Deployment"]["status"]	== false){
@@ -114,9 +76,7 @@ class Deployment extends AppModel {
 		// success: no errors occured during deployment
 		}else{
 		
-			// update version in db	and symlink (done through relational)
-			$this->Project->id = $project_id;	
-			$this->Project->saveField('current_version', $this->data["Deployment"]["deployed_version"]);
+			// TODO: make curl to NewRelic
 							
 		}		
 	}
@@ -150,21 +110,5 @@ class Deployment extends AppModel {
 			'foreignKey' => 'deployment_id',
 			'dependent' => false,
 		)		
-	);		
-		
-	// verify that the current version exists
-	function validateCurrentVersion($check){
-		$versions = $this->getVersionPaths($check["project_id"]);
-						
-		// success if dir exists		
-		return is_dir($versions["current"]) ? true : false; 
-	}
-
-	// verify that the version "to-be" does not exist
-	function validateNextVersion($check){	
-		$versions = $this->getVersionPaths($check["project_id"]);		
-		
-		// error if dir exists			
-		return is_dir($versions["next"]) ? false : true; 
-	}		
+	);			
 }

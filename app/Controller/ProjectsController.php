@@ -39,12 +39,7 @@ class ProjectsController extends AppController {
  */
 	public function add() {
 		if ($this->request->is('post')) {
-			$this->Project->create();
-			
-			// set default dev_domain
-			$this->request->data["Project"]["dev_domain"] = $this->request->data["Project"]["project_alias"] . '.konscript.com';			
-			$this->request->data["Project"]["additional_domains"] = "";						
-											
+			$this->Project->create();												
 			
 			if ($this->Project->save($this->request->data)) {
 				$this->Session->setFlash(__('The project has been saved'));
@@ -76,21 +71,6 @@ class ProjectsController extends AppController {
 		} else {
 			$this->request->data = $this->Project->read(null, $id);					
 		}
-		
-		
-				
-		// get project alias from db	    
-		$projects = $this->Project->find('first', array(
-		    'conditions' => array('id' => $id), //array of conditions
-			'fields' => array('project_alias'),
-			'recursive' => -1
-		));
-	    $project_alias = $projects["Project"]["project_alias"];		
-		
-							
-		$available_versions = $this->Project->get_list_of_folders($this->Project->getWebRoot().$project_alias."/prod");
-		//debug($available_versions);
-		$this->set(compact('available_versions'));		
 	}
 
 /**
