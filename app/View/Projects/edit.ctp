@@ -5,11 +5,6 @@
 	<?php
 		echo $this->Form->input('id');
 		echo $this->Form->input('title');
-		echo $this->Form->input('primary_domain');
-		echo $this->Form->input('additional_domains');
-		echo $this->Form->input('dev_domain');
-		echo $this->Form->input('use_cache');
-		echo $this->Form->input('current_version', array('options' => $available_versions));
 	?>
 	</fieldset>
 <?php echo $this->Form->end(__('Submit'));?>

@@ -1,10 +1,10 @@
 {
   "pusher": {
     "name": "tdidriksen",
-    "email": "st.didriksen@gmail.com"
+    "email": "t.didriksen@gmail.com"
   },
   "repository": {
-    "name": "wpsandbox",
+    "name": "dummyrep",
     "created_at": "2011\/07\/24 08:35:38 -0700",
     "size": 2660,
     "has_wiki": true,

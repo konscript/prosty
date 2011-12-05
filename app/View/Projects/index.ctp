@@ -5,11 +5,6 @@
 	<tr>
 
 			<th><?php echo $this->Paginator->sort('title');?></th>
-			<th><?php echo $this->Paginator->sort('primary_domain');?></th>
-
-			<th><?php echo $this->Paginator->sort('dev_domain');?></th>
-			<th><?php echo $this->Paginator->sort('use_cache');?></th>
-			<th><?php echo $this->Paginator->sort('current_version');?></th>
 			<th><?php echo $this->Paginator->sort('errors');?></th>
 			<th class="actions"><?php echo __('Actions');?></th>
 	</tr>
@@ -21,19 +16,13 @@
 	<tr>
 
 		<td><?php echo h($project['Project']['title']); ?>&nbsp;</td>
-		<td><?php echo h($project['Project']['primary_domain']); ?>&nbsp;</td>
-
-		<td><?php echo h($project['Project']['dev_domain']); ?>&nbsp;</td>
-		<td><?php echo h($project['Project']['use_cache']); ?>&nbsp;</td>
-		<td><?php echo h($project['Project']['current_version']); ?>&nbsp;</td>
 		<td><?php echo h($project['Project']['errors']); ?>&nbsp;</td>
 
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $project['Project']['id'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $project['Project']['id'])); ?>
 			<?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $project['Project']['id']), null, __('Are you sure you want to delete %s?', $project['Project']['title'])); ?>
-			<?php echo $this->Form->postLink(__('Deploy to new'), array('controller'=>'deployments', 'action' => 'add', $project['Project']['id'], true), null, __('Do you really want to deploy %s?', $project['Project']['title'])); ?>			
-			<?php echo $this->Form->postLink(__('Deploy to existing'), array('controller'=>'deployments', 'action' => 'add', $project['Project']['id'], 0), null, __('Do you really want to deploy %s?', $project['Project']['title'])); ?>						
+			<?php echo $this->Html->link(__('Deploy'), array('controller'=>'deployments', 'action' => 'add', $project['Project']['id']), null, __('Do you really want to deploy %s?', $project['Project']['title'])); ?>						
 		</td>
 	</tr>
 <?php endforeach; ?>

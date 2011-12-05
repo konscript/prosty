@@ -47,10 +47,10 @@ var $scaffold;
 		}else{
 			$this->Session->setFlash(__('No payload was received'));
 			$this->redirect(array('action' => 'index'));
-		}					
+		}							
 														
 		// User not logged in: identify with email address
-	    $this->Commit->Behaviors->detach('WhoDidIt');
+	  $this->Commit->Behaviors->detach('WhoDidIt');
 	    
 		$this->Commit->create();		
 		if ($this->Commit->save($this->request->data, array('validate' => false))) {

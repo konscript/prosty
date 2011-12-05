@@ -16,11 +16,6 @@
 			<?php echo h($deployment['Deployment']['status']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Next Version'); ?></dt>
-		<dd>
-			<?php echo h($deployment['Deployment']['deployed_version']); ?>
-			&nbsp;
-		</dd>
 		<dt><?php echo __('Created By'); ?></dt>
 		<dd>
 			<?php echo h($deployment['Deployment']['created_by']); ?>

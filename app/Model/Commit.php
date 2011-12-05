@@ -141,7 +141,7 @@ function beforeValidate(){
 		if($this->validates()){
 		
 			$project_alias = $this->data["Commit"]["project_alias"];			
-			$repo = Git::open($this->getWebRoot().$project_alias."/dev");			
+			$repo = Git::open($this->getWebRoot().$project_alias);			
 			$this->GitPull($repo);																	
 						
 			// set status - errors might have occured during git operation

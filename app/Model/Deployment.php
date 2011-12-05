@@ -23,8 +23,9 @@ class Deployment extends AppModel {
 		if($this->validates()){	
 						
 			// TODO: make curl request to Brutus - receive status code and response
+			$this->deployment_hook($project_id);
 
-			// set error status - errors might have occured during git
+			// set error status - errors might have occured during deployment
 			$this->data["Deployment"]["status"] = count($this->getErrors()) === 0 ? true : false;		
 		}else{
 			// remove invalid fields from array
@@ -76,7 +77,8 @@ class Deployment extends AppModel {
 		// success: no errors occured during deployment
 		}else{
 		
-			// TODO: make curl to NewRelic
+			// curl NewRelic to notify about deployment
+			$this->newrelic_hook($project_id);
 							
 		}		
 	}

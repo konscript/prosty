@@ -5,7 +5,6 @@
 	<?php
 		echo $this->Form->input('project_alias');
 		echo $this->Form->input('title', array('description'=>'asd'));
-		echo $this->Form->input('primary_domain');
 		echo $this->Form->input('wordpress', array('label' => 'Download and install Wordpress', 'type'=>'checkbox'));		
 	?>
 	</fieldset>

@@ -33,28 +33,7 @@ class Project extends AppModel {
 				'rule' => array('notempty'),
 			),
 		),
-		'primary_domain' => array(
-			'alphanumeric' => array(
-				'rule' => '/^[\w\.]+$/',
-				'message' => 'Cannot contain http:// or www - only the base hostname!',
-			),
-		),
-		'dev_domain' => array(
-			'notempty' => array(
-				'rule' => array('notempty'),
-			),
-		),
-		'use_cache' => array(
-			'boolean' => array(
-				'rule' => array('boolean'),
-			),
-		),
 		'screenshot' => array(
-			'boolean' => array(
-				'rule' => array('boolean'),
-			),
-		),
-		'exclude' => array(
 			'boolean' => array(
 				'rule' => array('boolean'),
 			),
