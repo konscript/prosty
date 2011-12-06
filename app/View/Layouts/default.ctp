@@ -16,7 +16,7 @@
 		<div id="header-before"></div>
 		<div id="header-wrapper">
 			<div id="header">
-				<h1 id="logo">Konscript</h1>
+				<a href="http://konscript.com"><h1 id="logo">Konscript</h1></a>
 				<nav id="main-navigation">
 					<ul>
 						<li>

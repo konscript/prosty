@@ -15,50 +15,10 @@
 		<dd>
 			<?php echo h($project['Project']['title']); ?>
 			&nbsp;
-		</dd>
-		<dt><?php echo __('Primary Domain'); ?></dt>
-		<dd>
-			<?php echo h($project['Project']['primary_domain']); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('Additional Domains'); ?></dt>
-		<dd>
-			<?php echo h($project['Project']['additional_domains']); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('Dev Domain'); ?></dt>
-		<dd>
-			<?php echo h($project['Project']['dev_domain']); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('Use Cache'); ?></dt>
-		<dd>
-			<?php echo h($project['Project']['use_cache']); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('Current Version'); ?></dt>
-		<dd>
-			<?php echo h($project['Project']['current_version']); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('Screenshot'); ?></dt>
-		<dd>
-			<?php echo h($project['Project']['screenshot']); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('Exclude'); ?></dt>
-		<dd>
-			<?php echo h($project['Project']['exclude']); ?>
-			&nbsp;
-		</dd>
+		</dd>		
 		<dt><?php echo __('Errors'); ?></dt>
 		<dd>
 			<?php echo h($project['Project']['errors']); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('Reboot Needed Date'); ?></dt>
-		<dd>
-			<?php echo h($project['Project']['reboot_needed_date']); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('Created'); ?></dt>

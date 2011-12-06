@@ -221,8 +221,10 @@ class ProstyBehavior extends ModelBehavior {
 
 			// log errors			
 			$errors_php = json_decode($errors_json);						
-			foreach($errors_php as $error){
-        $this->logError($Model, $error->message, $error->calling_function);
+			if(is_array($errors_php)){
+				foreach($errors_php as $error){
+		      $this->logError($Model, $error->message, $error->calling_function);
+				}
 			}
 		}		
 	}	     	

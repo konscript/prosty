@@ -22,7 +22,7 @@ class Deployment extends AppModel {
 			
 		if($this->validates()){	
 						
-			// TODO: make curl request to Brutus - receive status code and response
+			// curl request to Brutus - validate reponse code
 			$this->deployment_hook($project_id);
 
 			// set error status - errors might have occured during deployment
