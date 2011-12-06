@@ -5,14 +5,14 @@
 ###########
 
 # set variables
-source "/srv/www/services/prosty/bash/config.sh"
+source "/srv/www/konscript-services/prosty/bash/config.sh"
 project_id="${1}"
 folderToZip=$(basename ${2})
 cwdToFolder=$(dirname ${2})
 dbname=${3}
 error=0
 
-pathTemp="/srv/www/services/prosty/temp/"
+pathTemp="/srv/www/konscript-services/prosty/temp/"
 tarFile="${pathTemp}${project_id}.tar"
 sqlFile="${pathTemp}export.sql"
 

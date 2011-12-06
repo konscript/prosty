@@ -16,13 +16,12 @@ class ProstyBehavior extends ModelBehavior {
 		return $this->web_root;
 	}	
 	
-	function getProjectPath($Model, $project_id){
-		$project_alias = $this->getProjectAlias($Model, $project_id);
-		return $this->web_root.$project_alias;
+	function getProjectPath($Model, $project_alias){
+		return $this->web_root.$project_alias."/web";
 	}
 	
 	function getProjectAlias($Model, $project_id){
-		// get project_alias to be used in pathToTar
+		// get project_alias from project_id
 		$project = $Model->Project->findById($project_id);
 		$project_alias = $project["Project"]["project_alias"];						
 		return $project_alias;
@@ -39,10 +38,11 @@ class ProstyBehavior extends ModelBehavior {
 
 		// set variables
 		$project_alias = $data['project_alias'];
-		$project_path = $this->web_root.$project_alias;     
+		$project_path = $this->getProjectPath($Model, $project_alias);
 
 		// create project root - 02770: leading zero is required; 2 is the sticky bit (set guid); 770 is rwx,rwx,---
-		mkdir($project_path, 02770);
+		
+		mkdir($project_path, 02770, true);
 
 		// git init
 		$repo = Git::create($project_path); 		
@@ -276,7 +276,7 @@ class ProstyBehavior extends ModelBehavior {
 	***************************/		
 	function downloadZip($Model, $project_alias, $branch){	
 	
-		$path = $this->web_root.$project_alias;
+		$path = $this->getProjectPath($Model, $project_alias);
 		$dbname = $project_alias;
 	
 		if(is_dir($path)){

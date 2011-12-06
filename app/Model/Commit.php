@@ -103,6 +103,10 @@ function beforeValidate(){
 			'rule' => array('validateProjectAlias'),
 		    'message' => 'Invalid project alias'
 		),		
+		'project_alias' => array(
+			'rule' => array('validateProjectPath'),
+		    'message' => 'The path to project does not exist'
+		),		
 	);
 	
 	// payload must originate from Github.com
@@ -128,10 +132,18 @@ function beforeValidate(){
 		$projects = $this->Project->find('count', array(
 			'conditions' => array('project_alias' => $check["project_alias"])
 		));
-        return $projects == 1 ? true : false;
-	}		
+				
+    return $projects == 1 ? true : false;
+	}
 	
+	// path must exist
+	function validateProjectPath($check){
+		$project_alias = $check["project_alias"];
+		$path = $this->getProjectPath($project_alias);
 
+    return is_dir($path);
+	}
+	
 	/*******************
 	* beforeSave: successfully passed validators
 	*******************/
@@ -140,8 +152,8 @@ function beforeValidate(){
 		// all validations passed
 		if($this->validates()){
 		
-			$project_alias = $this->data["Commit"]["project_alias"];			
-			$repo = Git::open($this->getWebRoot().$project_alias);			
+			$project_alias = $this->data["Commit"]["project_alias"];
+			$repo = Git::open($this->getProjectPath($project_alias));
 			$this->GitPull($repo);																	
 						
 			// set status - errors might have occured during git operation

@@ -66,14 +66,12 @@ class Project extends AppModel {
 	 * Check if a folder of the name "$project_alias" exists
 	 * Validation: will fail if the folder exists
 	 ***************************************/
-    function validateProjectAliasFolder($check){		      					
-	    $path = $this->getWebRoot().$check["project_alias"];	    
-	    // TODO: $path = $this->getProjectPath($project_id);
-      return !file_exists($path); //return false if it exists
+    function validateProjectAliasFolder($check) {		      					
+			$project_alias = $check["project_alias"];
+			$path = $this->getProjectPath($project_alias);	
+      return !file_exists($path); //return false if it exists      
     }       	    
-    
-   
-    		
+           		
     /**
      * beforeSave: executes after valdiations and before save
      *************************************************/
