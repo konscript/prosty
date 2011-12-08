@@ -172,30 +172,28 @@ class ProstyBehavior extends ModelBehavior {
 	***************************/			
 	function newrelic_hook($Model, $project_id){
 		$project_alias = $this->getProjectAlias($Model, $project_id);
+	
+		$project_id = $Model->data["Deployment"]["project_id"];
+	
+		$all = $Model->Project->Commit->find('first', array(
+			'conditions' => array('Commit.project_id' => $project_id)
+		));
 		
+		$username = $all["CreatedBy"]["username"];
+		$commit = $all["Commit"]["last_commit_msg"];
+				
 		if(count($this->errors) == 0){
 	
+			$url = "https://rpm.newrelic.com/deployments.xml";	
 			$data = array(
 				'app_name' => $project_alias,
-				'user' => 'Søren',
-				'description' => 'Something something something DARK SIDE!'
-			);
-				
+				'user' => $username,
+				'description' => $commit
+			);				
 			$headers = array(
 				'x-api-key: d1fbd044db12e57daf5af391289571049d66659e01c88d7'
 			);
-	
-			$ch = curl_init();				
-			curl_setopt($ch, CURLOPT_URL, "https://rpm.newrelic.com/deployments.xml");
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);		// return instead of echo result
-			curl_setopt($ch, CURLOPT_POST, true);						// post instead of get
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $data);		// post data
-			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);	// custom headers	
-			$output = curl_exec($ch);
-			$info = curl_getinfo($ch);
-			curl_close($ch);	
-			// $utilities->debug($output);
-			// $utilities->debug($info);
+			$this->curl_helper($url, $data, $headers);
 		}		
 	}	     
 	
@@ -205,22 +203,18 @@ class ProstyBehavior extends ModelBehavior {
 	function deployment_hook($Model, $project_id){
 		$project_alias = $this->getProjectAlias($Model, $project_id);
 		
+		// if no errors were encountered
 		if(count($this->errors) == 0){
-	
+
+			$url = "deployment.konscript.com";	
 			$data = array(
 				'project_alias' => $project_alias,
-			);
-	
-			$ch = curl_init();				
-			curl_setopt($ch, CURLOPT_URL, "deployment.konscript.com");
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);		// return instead of echo result
-			curl_setopt($ch, CURLOPT_POST, true);						// post instead of get
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $data);		// post data
-			$errors_json = curl_exec($ch);
-			curl_close($ch);	
+			);	
+		
+			$errors_json = $this->curl_helper($url, $data);
 
 			// log errors			
-			$errors_php = json_decode($errors_json);						
+			$errors_php = json_decode($errors_json);
 			if(is_array($errors_php)){
 				foreach($errors_php as $error){
 				      $this->logError($Model, $error->message, $error->calling_function);
@@ -228,6 +222,26 @@ class ProstyBehavior extends ModelBehavior {
 			}
 		}		
 	}	     	
+	
+	
+	function curl_helper($url, $data, $headers = null){
+	
+			$ch = curl_init();				
+			curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);		// return instead of echo result
+			curl_setopt($ch, CURLOPT_POST, true);						// post instead of get
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $data);		// post data
+			if(isset($headers)){
+				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);	// custom headers	
+			}
+			$output = curl_exec($ch);
+			//$info = curl_getinfo($ch);
+			curl_close($ch);	
+			return $output;
+			// $utilities->debug($output);
+			// $utilities->debug($info);	
+	
+	}
 
 	/***************************
 	* update screenshot
