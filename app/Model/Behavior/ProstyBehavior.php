@@ -179,7 +179,7 @@ class ProstyBehavior extends ModelBehavior {
 			'conditions' => array('Commit.project_id' => $project_id)
 		));
 		
-		$username = $all["CreatedBy"]["username"];
+		$username = $_SESSION["Auth"]["User"]["username"];
 		$commit = $all["Commit"]["last_commit_msg"];
 				
 		if(count($this->errors) == 0){
