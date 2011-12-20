@@ -1,4 +1,5 @@
 <?php
+
 App::uses('AppController', 'Controller');
 /**
  * Commits Controller
@@ -27,7 +28,14 @@ class CommitsController extends AppController {
  * @param string $id
  * @return void
  */
-var $scaffold;
+	public function view($id = null) {
+		$this->Commit->id = $id;
+		if (!$this->Commit->exists()) {
+			throw new NotFoundException(__('Invalid commit'));
+		}
+		$this->set('commit', $this->Commit->read('', $id));
+		
+	}
 
 /**
  * add method

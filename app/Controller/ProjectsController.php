@@ -29,7 +29,12 @@ class ProjectsController extends AppController {
 		if (!$this->Project->exists()) {
 			throw new NotFoundException(__('Invalid project'));
 		}
-		$this->set('project', $this->Project->read(null, $id));
+		$this->set('project', $this->Project->find('first', array(
+							'conditions' => array('Project.id' => $id),
+							'recursive' => 2,
+							'contain' => array('Commit.User.username')
+		)));
+		
 	}
 
 /**

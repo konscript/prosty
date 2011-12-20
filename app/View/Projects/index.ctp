@@ -5,7 +5,7 @@
 	<tr>
 
 			<th><?php echo $this->Paginator->sort('title');?></th>
-			<th><?php echo $this->Paginator->sort('errors');?></th>
+			<th><?php echo $this->Paginator->sort('prod_url');?></th>
 			<th class="actions"><?php echo __('Actions');?></th>
 	</tr>
 	</thead>
@@ -16,7 +16,7 @@
 	<tr>
 
 		<td><?php echo h($project['Project']['title']); ?>&nbsp;</td>
-		<td><?php echo h($project['Project']['errors']); ?>&nbsp;</td>
+		<td><?php echo h($project['Project']['prod_url']); ?>&nbsp;</td>
 
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $project['Project']['id'])); ?>

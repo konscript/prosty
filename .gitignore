@@ -11,6 +11,9 @@ app/Config/database.php
 tags
 !empty
 
+# ignore dangerous files
+konscript_credentials.php
+
 # Ignore local dev, project and system files
 .DS_Store
 !empty

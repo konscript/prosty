@@ -167,6 +167,52 @@ class ProstyBehavior extends ModelBehavior {
 		debug($this->errors);
 	}	
 	
+	
+	/***************************
+	* Call Brutus to make deployment
+	***************************/			
+	function deployment_hook($Model, $project_id){
+		$project_alias = $this->getProjectAlias($Model, $project_id);
+		
+		// if no errors were encountered
+		if(count($this->errors) == 0){
+			
+			// set variables			
+			$url = "http://deployment.konscript.com";
+			$key = Configure::read('Deployment.key');
+			$keys = $this->split_key($key);
+			$iv = $this->random_iv();
+
+			// generate signature from key and AES encrypted message
+			$encrypted_project_alias = openssl_encrypt($project_alias, "AES-256-CBC", $key, false, $iv);
+			$signature = sha1($keys[0].$encrypted_project_alias.$keys[1]);
+
+			$data = array(
+				"iv" => $iv,
+				"signature" => $signature,
+				"encrypted_project_alias" => $encrypted_project_alias
+			);			
+					
+			$curl = $this->curl_helper($url, $data);
+
+			// log errors			
+			$errors_php = json_decode($curl["response"]);						
+			if(is_array($errors_php)){
+				foreach($errors_php as $error){
+		      $this->logError($Model, $error->message, $error->calling_function);
+				}
+			}else{
+	      $this->logError($Model, "Unknown error", __function__);			
+			}
+			
+			// log: connection problem
+			if($curl["http_code"] != 200){
+	      $this->logError($Model, "Problem connecting to $url - http code: ".$curl["http_code"], __function__);
+			}			
+			
+		}		
+	}	
+	
 	/***************************
 	* add deployment to NewRelic		
 	***************************/			
@@ -197,49 +243,44 @@ class ProstyBehavior extends ModelBehavior {
 		}		
 	}	     
 	
-	/***************************
-	* Call Brutus to make deployment
-	***************************/			
-	function deployment_hook($Model, $project_id){
-		$project_alias = $this->getProjectAlias($Model, $project_id);
-		
-		// if no errors were encountered
-		if(count($this->errors) == 0){
-
-			$url = "deployment.konscript.com";	
-			$data = array(
-				'project_alias' => $project_alias,
-			);	
-		
-			$errors_json = $this->curl_helper($url, $data);
-
-			// log errors			
-			$errors_php = json_decode($errors_json);
-			if(is_array($errors_php)){
-				foreach($errors_php as $error){
-				      $this->logError($Model, $error->message, $error->calling_function);
-				}
-			}
-		}		
-	}	     	
+	// makes a random alpha numeric 16 char string 
+	function random_iv($length = 16){
+		$aZ09 = array_merge(range('A', 'Z'), range('a', 'z'),range(0, 9)); 
+		$out =''; 
+		for($c=0;$c < $length;$c++) { 
+		   $out .= $aZ09[mt_rand(0,count($aZ09)-1)]; 
+		} 
+		return $out; 
+	}
 	
+	// split key into two
+	function split_key($key){
+		$half = (int) ( (strlen($key) / 2) );
+		$left = substr($key, 0, $half);
+		$right = substr($key, $half);
+		return array($left, $right);
+	}	
 	
 	function curl_helper($url, $data, $headers = null){
 	
-			$ch = curl_init();				
-			curl_setopt($ch, CURLOPT_URL, $url);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);		// return instead of echo result
-			curl_setopt($ch, CURLOPT_POST, true);						// post instead of get
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $data);		// post data
-			if(isset($headers)){
-				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);	// custom headers	
-			}
-			$output = curl_exec($ch);
-			//$info = curl_getinfo($ch);
-			curl_close($ch);	
-			return $output;
-			// $utilities->debug($output);
-			// $utilities->debug($info);	
+		$ch = curl_init();				
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);		// return instead of echo result
+		curl_setopt($ch, CURLOPT_POST, true);						// post instead of get
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);		// post data
+		if(isset($headers)){
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);	// custom headers	
+		}
+		$reponse = curl_exec($ch);
+		$info = curl_getinfo($ch);
+		
+		curl_close($ch);	
+		return array(
+			"response" => $reponse, 
+			"http_code" => $info["http_code"]
+		);
+		// debug($output);
+		// debug($info);	
 	
 	}
 

@@ -4,7 +4,7 @@ App::import('Vendor', 'Git');
 
 class Project extends AppModel {
  
-	public $actsAs = array('Prosty');		 	
+	public $actsAs = array('Prosty', 'Containable');
 	public $validate = array(
 		'project_alias' => array(
 			'notempty' => array(
