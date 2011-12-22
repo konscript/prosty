@@ -135,7 +135,6 @@ class ProstyBehavior extends ModelBehavior {
 		// debug($checkout_branch);
 		$this->validateGitResponse($Model, $checkout_branch, "checkout branch");
 
-
 		// attempt pull
 		if(count($this->errors) == 0){
 			// echo "Git pull";
@@ -157,26 +156,15 @@ class ProstyBehavior extends ModelBehavior {
 			// debug($merge);	
 			$this->validateGitResponse($Model, $merge, "merge with tmp");				
 			
-			// clear cache
-			/*
-			PROD URL
-			$project_id = $Model->data["Commit"]["project_id"];				
-			$Project = $Model->Project->find('first', array(
-				'conditions' => array('Project.id' => $project_id),
-				'fields' => 'prod_url',
-				'recursive' => -1
-			));						
-			$url = $Project["Project"]["prod_url"];
-			*/
-			
-			$project_id = $Model->data["Commit"]["project_alias"];
-			$url = $project_id . '.konscript.net';
+			// clear cache			
+			$project_alias = $Model->data["Commit"]["project_alias"];
+			$url = $project_alias . '.konscript.net';
 			$request_method = "BAN";
-			$curl = $this->curl_helper($url, null, null, $request_method);
+			$curl_ban = $this->curl_helper($url, null, null, $request_method);
 			
 			// log curl error
-			if($curl["http_code"] != 200){
-        $this->logError($Model, "Cache could not be cleared: " . $curl["response"], __function__);
+			if($curl_ban["http_code"] != 200){
+        $this->logError($Model, "Cache could not be cleared (error ".$curl_ban["http_code"] ."): " . $curl_ban["response"], __function__);
 			}
 		}
 
@@ -214,23 +202,53 @@ class ProstyBehavior extends ModelBehavior {
 				"signature" => $signature,
 				"encrypted_project_alias" => $encrypted_project_alias
 			);			
-					
-			$curl = $this->curl_helper($url, $data);
-
-			// log errors			
-			$errors_php = json_decode($curl["response"]);						
-			if(is_array($errors_php)){
-				foreach($errors_php as $error){
-		      $this->logError($Model, $error->message, $error->calling_function);
-				}
+			
+			// curl to force git pull			
+			$curl_git_pull = $this->curl_helper($url, $data);
+						
+			// log: curl error
+			if($curl_git_pull["http_code"] != 200){
+	      $this->logError($Model, $curl_git_pull["response"], __function__);	      
+	      
+      // curl connection success (status code 200)
 			}else{
-	      $this->logError($Model, "Unknown error", __function__);			
+				
+				$errors_php = json_decode($curl_git_pull["response"]);
+				
+				// log possible errors
+				if(is_array($errors_php)){
+					foreach($errors_php as $error){
+				    $this->logError($Model, $error->message, $error->calling_function);
+					}
+					
+				// unknown format of response
+				}else{
+			    $this->logError($Model, "Unknown response (error ".$curl_git_pull["http_error"].") " . $curl_git_pull["response"], __function__);			
+				}			
 			}
 			
-			// log: connection problem
-			if($curl["http_code"] != 200){
-	      $this->logError($Model, "Problem connecting to $url - http code: ".$curl["http_code"], __function__);
-			}			
+			// purge cache (ban) on Brutus
+			if(count($this->errors) == 0){			
+				// get url for project
+				$Project = $Model->Project->find('first', array(
+					'conditions' => array('Project.id' => $project_id),
+					'fields' => 'prod_url',
+					'recursive' => -1
+				));						
+				
+				// set variables
+				$url = $Project["Project"]["prod_url"];				
+				$request_method = "BAN";
+				
+				// curl to force purge cache
+				$curl_ban = $this->curl_helper($url, null, null, $request_method);
+			
+				// log curl error
+				if($curl_ban["http_code"] != 200){
+		      $this->logError($Model, "Cache could not be cleared: " . $curl_ban["response"], __function__);
+				}				
+
+			}
 			
 		}		
 	}	
