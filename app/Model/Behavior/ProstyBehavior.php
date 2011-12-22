@@ -160,11 +160,11 @@ class ProstyBehavior extends ModelBehavior {
 			$project_alias = $Model->data["Commit"]["project_alias"];
 			$url = $project_alias . '.konscript.net';
 			$request_method = "BAN";
-			$curl_ban = $this->curl_helper($url, null, null, $request_method);
+			// $curl_ban = $this->curl_helper($url, null, null, $request_method);
 			
 			// log curl error
 			if($curl_ban["http_code"] != 200){
-        $this->logError($Model, "Cache could not be cleared (error ".$curl_ban["http_code"] ."): " . $curl_ban["response"], __function__);
+        //$this->logError($Model, "Cache could not be cleared (error ".$curl_ban["http_code"] ."): " . $curl_ban["response"], __function__);
 			}
 		}
 

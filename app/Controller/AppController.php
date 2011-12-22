@@ -1,6 +1,6 @@
 <?php
 class AppController extends Controller {
-    public $components = array('Auth', 'RequestHandler', 'Session');       
+    public $components = array('Auth', 'RequestHandler', 'Session', 'AutoLogin');
     public $permissions = array();     
     public $helpers = array('Html', 'Form', 'Session');
 
