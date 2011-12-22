@@ -140,7 +140,7 @@ function beforeValidate(){
 	function validateProjectPath($check){
 		$project_alias = $check["project_alias"];
 		$path = $this->getProjectPath($project_alias);
-
+	
     return is_dir($path);
 	}
 	
@@ -154,7 +154,7 @@ function beforeValidate(){
 		
 			$project_alias = $this->data["Commit"]["project_alias"];
 			$repo = Git::open($this->getProjectPath($project_alias));
-			$this->GitPull($repo);																	
+			$this->GitPull($repo);	
 						
 			// set status - errors might have occured during git operation
 			$this->data["Commit"]["status"] = count($this->getErrors()) == 0 ? true : false;		

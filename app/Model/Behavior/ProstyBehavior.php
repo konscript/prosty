@@ -155,7 +155,29 @@ class ProstyBehavior extends ModelBehavior {
 			// echo "merge with tmp";	
 			$merge = $repo->git_run_with_validation('merge tmp');	
 			// debug($merge);	
-			$this->validateGitResponse($Model, $merge, "merge with tmp");
+			$this->validateGitResponse($Model, $merge, "merge with tmp");				
+			
+			// clear cache
+			/*
+			PROD URL
+			$project_id = $Model->data["Commit"]["project_id"];				
+			$Project = $Model->Project->find('first', array(
+				'conditions' => array('Project.id' => $project_id),
+				'fields' => 'prod_url',
+				'recursive' => -1
+			));						
+			$url = $Project["Project"]["prod_url"];
+			*/
+			
+			$project_id = $Model->data["Commit"]["project_alias"];
+			$url = $project_id . '.konscript.net';
+			$request_method = "BAN";
+			$curl = $this->curl_helper($url, null, null, $request_method);
+			
+			// log curl error
+			if($curl["http_code"] != 200){
+        $this->logError($Model, "Cache could not be cleared: " . $curl["response"], __function__);
+			}
 		}
 
 		// delete tmp
@@ -261,16 +283,28 @@ class ProstyBehavior extends ModelBehavior {
 		return array($left, $right);
 	}	
 	
-	function curl_helper($url, $data, $headers = null){
+	
+	function curl_helper($url, $data = null, $headers = null, $request_method = "POST"){
 	
 		$ch = curl_init();				
 		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);		// return instead of echo result
-		curl_setopt($ch, CURLOPT_POST, true);						// post instead of get
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);		// post data
-		if(isset($headers)){
-			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);	// custom headers	
+		
+		// return instead of echo result		
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);		
+		
+		// set request method
+		if($request_method == "POST"){
+			curl_setopt($ch, CURLOPT_POST, true);						
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+		}else{
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $request_method);
 		}
+		
+		// custom headers	
+		if(isset($headers)){
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);	
+		}
+		
 		$reponse = curl_exec($ch);
 		$info = curl_getinfo($ch);
 		
