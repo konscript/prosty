@@ -144,10 +144,12 @@ class ProstyBehavior extends ModelBehavior {
 		}
 
 		// checkout master
-		// echo "Checkout master";
-		$checkout_master = $repo->git_run_with_validation('checkout master -f');
-		// debug($checkout_master);
-		$this->validateGitResponse($Model, $checkout_master, "checkout master");	
+		if(count($this->errors) == 0){
+			// echo "Checkout master";
+			$checkout_master = $repo->git_run_with_validation('checkout master -f');
+			// debug($checkout_master);
+			$this->validateGitResponse($Model, $checkout_master, "checkout master");	
+		}
 
 		// merge master with tmp if no previous errors
 		if(count($this->errors) == 0){
