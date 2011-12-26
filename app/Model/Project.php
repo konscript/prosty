@@ -173,7 +173,7 @@ class Project extends AppModel {
 		
 		// download and untar wordpress				
 		$stale_date = time() - 3600 * 7; // max a week old
-		$this->downloadAndUntar(APP."Vendor/temp/latest.tar.gz", "http://wordpress.org/latest.tar.gz", $project_path, $stale_date);
+		$this->downloadAndUntar(APP."tmp/downloads/latest.tar.gz", "http://wordpress.org/latest.tar.gz", $project_path, $stale_date);
 		
 		// decode json and get date for last commit
 		// determine date of latest commit 
@@ -181,7 +181,7 @@ class Project extends AppModel {
 		$last_commit = strtotime($commits_json[0]->commit->author->date);		
 
 		// download and untar kontemplate				
-		$this->downloadAndUntar(APP."Vendor/temp/kontemplate.tar.gz", "http://github.com/konscript/kontemplate-wp/tarball/master", $project_path, $last_commit);						
+		$this->downloadAndUntar(APP."tmp/downloads/kontemplate.tar.gz", "http://github.com/konscript/kontemplate-wp/tarball/master", $project_path, $last_commit);						
 	}
 	
 	/***************************
@@ -236,7 +236,7 @@ class Project extends AppModel {
 
 		// set filename depending on type
 		$project_alias = $this->getProjectAlias($project_id);
-		$file = APP . "Vendor/temp/" . $project_alias;
+		$file = APP . "tmp/downloads/" . $project_alias;
 		$file .= ( $type == "sql" ) ? ".sql" : ".tar";
 						
 

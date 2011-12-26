@@ -31,7 +31,7 @@ class ProjectsController extends AppController {
         'download'  => true,
         'mimeType'	=> array( 'sql' => 'text/plain' ),
         'extension' => $fileinfo["extension"],
-        'path'      => APP . 'Vendor/temp' . DS
+        'path'      => APP . 'tmp/downloads' . DS
     );
 
     $this->set($params);
