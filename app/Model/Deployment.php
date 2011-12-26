@@ -41,10 +41,13 @@ class Deployment extends AppModel {
 			));						
 						
 			// Clear cache on Brutus			
+			// TODO: Install Varnish on Brutus and enable this again!
+			/*
 			$this->curl_wrapper(array(
 				"url" => $Project["Project"]["prod_url"],
 				"request_method" => "BAN"
-			));						
+			));
+			*/
 
 			// set error status - errors might have occured during deployment
 			$this->data["Deployment"]["status"] = count($this->getErrors()) === 0 ? true : false;		
