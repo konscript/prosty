@@ -261,7 +261,9 @@ class Project extends AppModel {
 				$cmd = "cd " . $project_path["dirname"] . " && tar --create --file=$file ".$project_path["basename"];
 			}
 			
-			exec("$cmd 2>&1", $output, $return_code);
+			exec($cmd . " 2>&1", $output, $return_code);
+			
+			sleep(2);
 			
 			// error logging
 			$this->logError(array(
@@ -269,9 +271,7 @@ class Project extends AppModel {
 				"calling_function" => __function__,
 				"return_code" => $return_code
 			));
-		}	
-		
-		sleep(2);
+		}			
 		
 		// return fileinfo
 		return pathinfo($file);
