@@ -44,8 +44,11 @@ class ProstyBehavior extends ModelBehavior {
 
 
 		// don't log if no errors occured
-		if(!$options["type"] && $options["return_code"] == 0 ||
-			 $options["type"] == "bool" && $options["return_code"] === true){
+		if(
+			( !$options["type"] && $options["return_code"] == 0 ) ||
+			( $options["type"] == "bool" && $options["return_code"] === true ) ||
+			( $options["type"] == "curl" && $options["return_code"] == 200 && !$this->is_json($options["message"]) )
+		){
 			return;
 		}	
 		
