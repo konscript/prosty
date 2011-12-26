@@ -146,7 +146,7 @@ class Deployment extends AppModel {
 	function newrelic_hook($project_id){
 	
 		// get values
-		$project_alias = $this->getProjectAlias($this, $project_id);		
+		$project_alias = $this->getProjectAlias($project_id);		
 		$projects = $this->Project->Commit->find('first', array(
 			'conditions' => array('Commit.project_id' => $project_id)
 		));
