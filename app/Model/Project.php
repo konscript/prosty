@@ -247,8 +247,6 @@ class Project extends AppModel {
 			unlink($file);
 		}
 
-
-
 		// create files
 		if(!is_file($file)){
 			
@@ -272,6 +270,8 @@ class Project extends AppModel {
 				"return_code" => $return_code
 			));
 		}	
+		
+		sleep(2);
 		
 		// return fileinfo
 		return pathinfo($file);
