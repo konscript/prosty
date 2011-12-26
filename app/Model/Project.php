@@ -106,7 +106,7 @@ class Project extends AppModel {
 				// push to GitHub
 				$this->executeAndLogGit($repo, 'add -A');
 				$this->executeAndLogGit($repo, 'commit -m "Automatic initial commit from Caesar"');
-				// $this->executeAndLogGit($repo, 'push konscript master');				
+				$this->executeAndLogGit($repo, 'push konscript master');				
 			}else{
 				// add empty commit to create master branch
 				$this->executeAndLogGit($repo, 'commit --allow-empty -m "empty commit"');						

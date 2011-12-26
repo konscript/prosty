@@ -49,8 +49,8 @@ class ProstyBehavior extends ModelBehavior {
 			return;
 		}	
 		
-		// curl request are always encoded as json
-		if( $options["type"] == "curl" && $options["return_code"] == 200 ){
+		// curl request are always encoded as json 
+		if( $options["type"] == "curl" && $options["return_code"] == 200 && $this->is_json($options["message"])){			
 			$options["message"] = json_decode($options["message"]);
 		}
 	
@@ -95,6 +95,13 @@ class ProstyBehavior extends ModelBehavior {
 				"return_code" => $git_response[0]
 		));			
   }				
+  
+  function is_json($str){
+		$json = json_decode($str);
+		if($json != null && json_last_error() === JSON_ERROR_NONE){
+			return true;
+		}  
+  }
 			
 	/***************************
 	* wrapper function for cURL requests

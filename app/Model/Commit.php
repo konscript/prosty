@@ -134,9 +134,7 @@ function beforeValidate(){
 				"url" => $project_alias . '.konscript.net',
 				"request_method" => "BAN"
 			));					
-						
-			debug($this->getErrors());
-						
+												
 			// set status - errors might have occured during git operation
 			$this->data["Commit"]["status"] = count($this->getErrors()) == 0 ? true : false;		
 		
@@ -151,6 +149,9 @@ function beforeValidate(){
 			// set error status
 			$this->data["Commit"]["status"]	= false;		
 		}
+		
+		// output errors
+		debug($this->getErrors());
 		
 		// continue to save the record
 		return true;		
