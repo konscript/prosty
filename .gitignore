@@ -6,6 +6,7 @@ app/tmp/logs/*
 app/tmp/sessions/*
 app/tmp/tests/*
 app/tmp/*
+app/Vendor/temp/*
 app/Config/database.php
 /lib/Cake/Console/Templates/skel/tmp/
 tags

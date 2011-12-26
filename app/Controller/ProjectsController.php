@@ -17,6 +17,25 @@ class ProjectsController extends AppController {
 		$this->Project->recursive = 0;
 		$this->set('projects', $this->paginate());
 	}
+	
+	public function download($id = null, $type = "files") {
+		
+		// prepare file
+		$fileinfo = $this->Project->downloadZip($id, $type);					
+
+		// download file
+    $this->viewClass = 'Media';
+    $params = array(
+        'id'        => $fileinfo["basename"],
+        'name'			=> $fileinfo["filename"] . " - " . date("d-m-Y", time()),
+        'download'  => true,
+        'mimeType'	=> array( 'sql' => 'text/plain' ),
+        'extension' => $fileinfo["extension"],
+        'path'      => APP . 'Vendor/temp' . DS
+    );
+
+    $this->set($params);
+	}	
 
 /**
  * view method

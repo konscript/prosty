@@ -107,42 +107,7 @@ function beforeValidate(){
 			'rule' => array('validateProjectPath'),
 		    'message' => 'The path to project does not exist'
 		),		
-	);
-	
-	// payload must originate from Github.com
-	function validateHostname($check){
-    	$host = gethostbyaddr($check["ip_addr"]);    	    	
-        return ($check["ip_addr"] == "127.0.0.1" || substr($host, -10) == "github.com") ? true : false;
-	}
-	
-	// branch must be master
-	function validateBranch($check){
-        $valid_branches = array('refs/heads/master');
-        return in_array($check["branch"], $valid_branches) ? true : false;
-	}
-	
-	// payload must originate from Konscript's Github account
-	function validateGithubAccount($check){
-        return strpos($check["account"], "github.com/konscript") ? true : false;
-	}	
-
-	// project must exist	
-	function validateProjectAlias($check){
-		// find number of projects with the given project_alias
-		$projects = $this->Project->find('count', array(
-			'conditions' => array('project_alias' => $check["project_alias"])
-		));
-				
-    return $projects == 1 ? true : false;
-	}
-	
-	// path must exist
-	function validateProjectPath($check){
-		$project_alias = $check["project_alias"];
-		$path = $this->getProjectPath($project_alias);
-	
-    return is_dir($path);
-	}
+	);	
 	
 	/*******************
 	* beforeSave: successfully passed validators
@@ -151,10 +116,26 @@ function beforeValidate(){
 	
 		// all validations passed
 		if($this->validates()){
-		
+			
+			// get values
 			$project_alias = $this->data["Commit"]["project_alias"];
-			$repo = Git::open($this->getProjectPath($project_alias));
-			$this->GitPull($repo);	
+			$repo = Git::open($this->getProjectPath($project_alias));	
+
+			// execute git commands	
+			$this->executeAndLogGit($repo, 'branch tmp');
+			$this->executeAndLogGit($repo, 'checkout tmp');
+			$this->executeAndLogGit($repo, 'pull konscript master', true);			
+			$this->executeAndLogGit($repo, 'checkout master -f');	
+			$this->executeAndLogGit($repo, 'merge tmp', true);
+			$this->executeAndLogGit($repo, 'branch tmp -D'); // delete branch
+				
+			// clear cache on Caesar
+			$this->curl_wrapper(array(
+				"url" => $project_alias . '.konscript.net',
+				"request_method" => "BAN"
+			));					
+						
+			debug($this->getErrors());
 						
 			// set status - errors might have occured during git operation
 			$this->data["Commit"]["status"] = count($this->getErrors()) == 0 ? true : false;		
@@ -238,4 +219,41 @@ function beforeValidate(){
 		)		
 	);
 
+	/**
+	 * Utility functions
+	 *******************************************************************************************/
+
+	// payload must originate from Github.com
+	function validateHostname($check){
+    	$host = gethostbyaddr($check["ip_addr"]);    	    	
+        return ($check["ip_addr"] == "127.0.0.1" || substr($host, -10) == "github.com") ? true : false;
+	}
+	
+	// branch must be master
+	function validateBranch($check){
+        $valid_branches = array('refs/heads/master');
+        return in_array($check["branch"], $valid_branches) ? true : false;
+	}
+	
+	// payload must originate from Konscript's Github account
+	function validateGithubAccount($check){
+        return strpos($check["account"], "github.com/konscript") ? true : false;
+	}	
+
+	// project must exist	
+	function validateProjectAlias($check){
+		// find number of projects with the given project_alias
+		$projects = $this->Project->find('count', array(
+			'conditions' => array('project_alias' => $check["project_alias"])
+		));
+				
+    return $projects == 1 ? true : false;
+	}
+	
+	// path must exist
+	function validateProjectPath($check){
+		$project_alias = $check["project_alias"];
+		$path = $this->getProjectPath($project_alias);
+    return is_dir($path);
+	}	         			
 }

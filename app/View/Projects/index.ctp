@@ -19,7 +19,8 @@
 		<td><?php echo h($project['Project']['prod_url']); ?>&nbsp;</td>
 
 		<td class="actions">
-			<?php echo $this->Html->link(__('View'), array('action' => 'view', $project['Project']['id'])); ?>
+			<?php echo $this->Html->link(__('Download'), array('action' => 'download', $project['Project']['id'])); ?>
+			<?php echo $this->Html->link(__('SQL dump'), array('action' => 'download', $project['Project']['id'], "sql")); ?>			
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $project['Project']['id'])); ?>
 			<?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $project['Project']['id']), null, __('Are you sure you want to delete %s?', $project['Project']['title'])); ?>
 			<?php echo $this->Html->link(__('Deploy'), array('controller'=>'deployments', 'action' => 'add', $project['Project']['id']), null, __('Do you really want to deploy %s?', $project['Project']['title'])); ?>						

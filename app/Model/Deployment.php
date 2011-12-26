@@ -22,12 +22,35 @@ class Deployment extends AppModel {
 			
 		if($this->validates()){	
 						
-			// curl request to Brutus - validate reponse code
-			$this->deployment_hook($project_id);
+			// set variables				
+			$project_alias = $this->getProjectAlias($project_id);
+		
+			// curl to force git pull			
+			$this->curl_wrapper(array(
+				"url" => "http://deployment.konscript.com",
+				"data" => array(
+					"project_alias" => $project_alias
+				)
+			));
+							   	      			
+			// get production URL
+			$Project = $this->Project->find('first', array(
+				'conditions' => array('Project.id' => $project_id),
+				'fields' => 'prod_url',
+				'recursive' => -1
+			));						
+						
+			// Clear cache on Brutus			
+			$this->curl_wrapper(array(
+				"url" => $Project["Project"]["prod_url"],
+				"request_method" => "BAN"
+			));						
 
 			// set error status - errors might have occured during deployment
 			$this->data["Deployment"]["status"] = count($this->getErrors()) === 0 ? true : false;		
 		}else{
+		
+			$this->data["Deployment"]["invalidFields"] = json_encode($this->invalidFields());
 			// remove invalid fields from array
 			foreach($this->invalidFields() as $errorName => $error){		
 				unset($this->data["Deployment"][$errorName]);
@@ -113,4 +136,33 @@ class Deployment extends AppModel {
 			'dependent' => false,
 		)		
 	);			
+	
+	
+	
+	
+	/***************************
+	* add deployment to NewRelic		
+	***************************/			
+	function newrelic_hook($project_id){
+	
+		// get values
+		$project_alias = $this->getProjectAlias($this, $project_id);		
+		$projects = $this->Project->Commit->find('first', array(
+			'conditions' => array('Commit.project_id' => $project_id)
+		));
+
+		// make curl request
+		$this->curl_wrapper(array(
+			"url" => "https://rpm.newrelic.com/deployments.xml",
+			"headers" => array('x-api-key: '. Configure::read('NewRelic.rest')),
+			"data" => array(
+				'app_name' => $project_alias,
+				'user' => $_SESSION["Auth"]["User"]["username"],
+				'description' => $projects["Commit"]["last_commit_msg"]
+			)
+		));						
+	}	 	
+	
+	
+	
 }
