@@ -104,6 +104,9 @@ class DevDeployment extends AppModel {
 	*******************/
 	function beforeSave(){	
 	
+		// validation failed: remove invalid fields from array				
+		$this->logCakeValidationErrors();				
+		
 		// all validations passed
 		if($this->validates()){
 			
@@ -123,15 +126,9 @@ class DevDeployment extends AppModel {
 			$this->curl_wrapper(array(
 				"url" => $project_alias . '.konscript.net',
 				"request_method" => "BAN"
-			));					
-																
-		// validation failed: remove invalid fields from array
-		}else{				
-			foreach($this->invalidFields() as $errorName => $error){		
-				unset($this->data["DevDeployment"][$errorName]);
-			}
-		}
-		
+			));																				
+		}		
+			
 		// set error status 
 		$this->data["DevDeployment"]["status"] = count($this->getErrors()) == 0 ? true : false;		
 		

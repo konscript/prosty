@@ -74,8 +74,7 @@ class ProstyBehavior extends ModelBehavior {
 		}	
 	
 		// multiple errors
-		$error = $options["response"][0];
-		if(is_array($error) && array_key_exists("return_code", $error)){
+		if(isset($options["response"][0]) && is_array($options["response"][0]) && array_key_exists("return_code", $options["response"][0])){
 			// iterate errors
 			foreach($options["response"] as $options){
 			
@@ -182,7 +181,7 @@ class ProstyBehavior extends ModelBehavior {
 	}		
 
 	/***************************
-	* after save for Deployment and Commit
+	* after save for both types of deployment
 	***************************/	
 	function saveErrorLogs($Model){
 						
@@ -200,4 +199,24 @@ class ProstyBehavior extends ModelBehavior {
 			$Model->DeploymentError->save($Model->data);		
 		}
 	}
+	
+	/***************************
+	* beforesave for both types of deployment
+	***************************/		
+	function logCakeValidationErrors($Model){
+		if( !$Model->validates() ) {
+														
+			foreach($Model->invalidFields() as $errorName => $errors){					
+				$this->logError($Model, array(
+					"request" => $Model->data[$Model->name][$errorName],
+					"response" => json_encode($errors),
+					"calling_function" => $errorName,
+					"return_code" => 0,
+					"type" => "bool"
+				));			
+						
+				unset($Model->data[$Model->name][$errorName]);
+			}
+		}
+	}			
 }

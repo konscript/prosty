@@ -65,24 +65,12 @@ class ProdDeployment extends AppModel {
 				"url" => $Project["Project"]["prod_url"],
 				"request_method" => "BAN"
 			));
-			*/
-			
-		// validation failed: remove invalid fields from array
-		}else{		
-						
-			foreach($this->invalidFields() as $errorName => $errors){				
-			
-				$this->logError(array(
-					"request" => $this->data["ProdDeployment"][$errorName],
-					"response" => json_encode($errors),
-					"calling_function" => $errorName,
-					"return_code" => 0,
-					"type" => "bool"
-				));			
-							
-				unset($this->data["ProdDeployment"][$errorName]);
-			}					
-		}					
+			*/			
+		}
+		
+		// validation failed: remove invalid fields from array		
+		$this->logCakeValidationErrors();				
+					
 		
 		// Set error status
 		$this->data["ProdDeployment"]["status"] = count( $this->getErrors() ) === 0 ? true : false;
