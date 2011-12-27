@@ -20,19 +20,16 @@ class Deployment extends AppModel {
 	
 		$project_id = $this->data["Deployment"]["project_id"];
 			
-		if($this->validates()){	
-						
-			// set variables				
-			$project_alias = $this->getProjectAlias($project_id);
-		
+		if($this->validates()){
+								
 			// curl to force git pull			
 			$this->curl_wrapper(array(
 				"url" => "http://deployment.konscript.com",
 				"data" => array(
-					"project_alias" => $project_alias
+					"project_alias" => $this->getProjectAlias($project_id)
 				)
 			));
-							   	      			
+
 			// get production URL
 			$Project = $this->Project->find('first', array(
 				'conditions' => array('Project.id' => $project_id),
@@ -48,20 +45,16 @@ class Deployment extends AppModel {
 				"request_method" => "BAN"
 			));
 			*/
-
-			// set error status - errors might have occured during deployment
-			$this->data["Deployment"]["status"] = count($this->getErrors()) === 0 ? true : false;		
-		}else{
-		
-			$this->data["Deployment"]["invalidFields"] = json_encode($this->invalidFields());
-			// remove invalid fields from array
+			
+		// validation failed: remove invalid fields from array
+		}else{			
 			foreach($this->invalidFields() as $errorName => $error){		
 				unset($this->data["Deployment"][$errorName]);
-			}		
+			}
+		}		
 		
-			// set error status
-			$this->data["Deployment"]["status"]	= false;			
-		}				
+		// update error status
+		$this->data["Deployment"]["status"] = count( $this->getErrors() ) === 0 ? true : false;				
 		
 		return true;
 	}
@@ -70,43 +63,15 @@ class Deployment extends AppModel {
 	* afterSave: log errors
 	*******************/	
 	function afterSave(){
-	
-		$project_id = $this->data["Deployment"]["project_id"];
-				
-		// errors occured during deployment
-		if($this->data["Deployment"]["status"]	== false){
-
-			// log Prosty errors
-			foreach($this->getErrors() as $error){		
-				// set values
-				$this->data["DeploymentError"]["deployment_id"] = $this->data["Deployment"]["id"];			
-				$this->data["DeploymentError"]["message"] = $error["message"];
-				$this->data["DeploymentError"]["calling_function"] = $error["calling_function"];
-	
-				// save errors
-				$this->DeploymentError->create();
-				$this->DeploymentError->save($this->data);		
-			}				
-	
-			// log cake validation errors
-			foreach($this->invalidFields() as $errorName => $error){		
-				// set values
-				$this->data["DeploymentError"]["deployment_id"] = $this->data["Deployment"]["id"];			
-				$this->data["DeploymentError"]["message"] = $error[0];
-				$this->data["DeploymentError"]["calling_function"] = $errorName;
-	
-				// save errors
-				$this->DeploymentError->create();
-				$this->DeploymentError->save($this->data);		
-			}		
-			
-		// success: no errors occured during deployment
-		}else{
-		
-			// curl NewRelic to notify about deployment
+									
+		// Deployment successful: Add to NewRelic
+		if(count($this->getErrors()) === 0){		
+			$project_id = $this->data["Deployment"]["project_id"];
 			$this->newrelic_hook($project_id);
-							
-		}		
+		}
+		
+		$this->saveErrorLogs();
+
 	}
 	
 /**
@@ -163,7 +128,7 @@ class Deployment extends AppModel {
 				'user' => $_SESSION["Auth"]["User"]["username"],
 				'description' => $projects["Commit"]["last_commit_msg"]
 			)
-		));						
+		));			
 	}	 	
 	
 	

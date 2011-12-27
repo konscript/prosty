@@ -161,30 +161,7 @@ function beforeValidate(){
 	* afterSave: log errors
 	*******************/	
 	function afterSave(){
-				
-		// log Prosty errors
-		foreach($this->getErrors() as $error){		
-			// set values
-			$this->data["CommitError"]["commit_id"] = $this->data["Commit"]["id"];			
-			$this->data["CommitError"]["message"] = $error["message"];
-			$this->data["CommitError"]["calling_function"] = $error["calling_function"];
-		
-			// save errors
-			$this->CommitError->create();
-			$this->CommitError->save($this->data);		
-		}				
-		
-		// log cake validation errors
-		foreach($this->invalidFields() as $errorName => $error){		
-			// set values
-			$this->data["CommitError"]["commit_id"] = $this->data["Commit"]["id"];			
-			$this->data["CommitError"]["message"] = $error[0];
-			$this->data["CommitError"]["calling_function"] = $errorName;
-		
-			// save errors
-			$this->CommitError->create();
-			$this->CommitError->save($this->data);		
-		}		
+		$this->saveErrorLogs();
 	}
 
 /**

@@ -10,7 +10,7 @@
 			<?php echo h($deployment['Deployment']['created_by']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Deploted at'); ?></dt>
+		<dt><?php echo __('Deployed at'); ?></dt>
 		<dd>
 			<?php echo h($deployment['Deployment']['created']); ?>
 			&nbsp;
@@ -23,15 +23,17 @@
 	<?php if (!empty($deployment['DeploymentError'])):?>
 	<table cellpadding = "0" cellspacing = "0">
 	<tr>
-		<th><?php echo __('Calling Function'); ?></th>
-		<th><?php echo __('Message'); ?></th>
+		<th><?php echo __('Request'); ?></th>
+		<th><?php echo __('Response'); ?></th>		
+		<th><?php echo __('Exit status'); ?></th>			
 	</tr>
 	<?php
 		$i = 0;
 		foreach ($deployment['DeploymentError'] as $deploymentError): ?>
 		<tr>
-			<td><?php echo $deploymentError['calling_function'];?></td>
-			<td><?php echo $deploymentError['message'];?></td>
+			<td><?php debug($deploymentError['request']);?></td>
+			<td><?php echo $deploymentError['response'];?></td>
+			<td><?php echo $deploymentError['return_code'];?></td>			
 		</tr>
 	<?php endforeach; ?>
 	</table>

@@ -6,6 +6,7 @@ App::uses('AppModel', 'Model');
  * @property Deployment $Deployment
  */
 class DeploymentError extends AppModel {
+	public $actsAs = array('Prosty');
 /**
  * Validation rules
  *
@@ -43,6 +44,18 @@ class DeploymentError extends AppModel {
 			),
 		),
 	);
+	
+function afterFind($results) {
+
+	foreach($results as $id=>$result){
+		$request = $result["DeploymentError"]["request"];
+		if($this->is_json($request)){
+			$results[$id]["DeploymentError"]["request"] = json_decode( $request);
+		}		
+	}
+	
+	return $results;
+}	
 
 	//The Associations below have been created with all possible keys, those that are not needed can be removed
 
