@@ -112,7 +112,7 @@ class ProstyBehavior extends ModelBehavior {
 		$git_response = $repo->git_run_with_validation($git_command);
 
 		$this->logError($Model, array(
-				"request" => $git_command,
+				"request" => "git " . $git_command,
 				"response" => $git_response[2],
 				"calling_function" => $git_command,
 				"return_code" => $git_response[0]

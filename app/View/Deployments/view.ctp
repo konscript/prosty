@@ -31,7 +31,7 @@
 		$i = 0;
 		foreach ($deployment['DeploymentError'] as $deploymentError): ?>
 		<tr>
-			<td><?php debug($deploymentError['request']);?></td>
+			<td><?php print_r($deploymentError['request']);?></td>
 			<td><?php echo $deploymentError['response'];?></td>
 			<td><?php echo $deploymentError['return_code'];?></td>			
 		</tr>
