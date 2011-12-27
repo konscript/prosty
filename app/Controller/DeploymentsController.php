@@ -2,7 +2,7 @@
 App::uses('AppController', 'Controller');
 
 class DeploymentsController extends AppController {
-   public $helpers = array('Time');
+   public $helpers = array('Time', 'Util');
 
 	public function index() {
 		$this->Deployment->recursive = 0;

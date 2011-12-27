@@ -19,7 +19,7 @@
 </div>
 
 <div class="related">
-	<h3><?php echo __('Errors during deployment to Brutus');?></h3>
+	<h3><?php echo __('Errors during deployment');?></h3>
 	<?php if (!empty($deployment['DeploymentError'])):?>
 	<table cellpadding = "0" cellspacing = "0">
 	<tr>
@@ -31,8 +31,8 @@
 		$i = 0;
 		foreach ($deployment['DeploymentError'] as $deploymentError): ?>
 		<tr>
-			<td><?php print_r($deploymentError['request']);?></td>
-			<td><?php echo $deploymentError['response'];?></td>
+			<td><pre><?php print_r($deploymentError['request']);?></pre></td>
+			<td><?php echo $this->Util->json_decode_if_json($deploymentError['response']);?></td>
 			<td><?php echo $deploymentError['return_code'];?></td>			
 		</tr>
 	<?php endforeach; ?>

@@ -13,7 +13,7 @@ class AppController extends Controller {
       //Configure AuthComponent
       $this->Auth->loginAction = array('controller' => 'users', 'action' => 'login');
       $this->Auth->logoutRedirect = array('controller' => 'users', 'action' => 'login');
-      $this->Auth->loginRedirect = array('controller' => 'users', 'action' => 'index');
+      $this->Auth->loginRedirect = array('controller' => 'deployments', 'action' => 'index');
   }
   
 	function isAuthorized(){ 
