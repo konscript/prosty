@@ -104,11 +104,13 @@ class DevDeployment extends AppModel {
 	*******************/
 	function beforeSave(){	
 	
+		$validates = $this->validates();
+	
 		// validation failed: remove invalid fields from array				
-		$this->logCakeValidationErrors();				
+		$this->logCakeValidationErrors($validates);				
 		
 		// all validations passed
-		if($this->validates()){
+		if($validates){
 			
 			// get values
 			$project_alias = $this->data["DevDeployment"]["project_alias"];
@@ -133,10 +135,7 @@ class DevDeployment extends AppModel {
 		$this->data["DevDeployment"]["status"] = count($this->getErrors()) == 0 ? true : false;		
 		
 		// set servername
-		$this->data["DevDeployment"]["server"] = "Caesar";		
-		
-		// output errors
-		debug($this->getErrors());
+		$this->data["DevDeployment"]["server"] = "Caesar";				
 		
 		// continue to save the record
 		return true;		

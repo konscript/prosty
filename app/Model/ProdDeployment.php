@@ -20,6 +20,8 @@ class ProdDeployment extends AppModel {
 	* beforeSave: deploy project, clone folders and run git
 	*******************/			
 	function beforeSave(){
+	
+		$validates = $this->validates();
 
 		// set project id	
 		$project_id = $this->data["ProdDeployment"]["project_id"];
@@ -39,9 +41,12 @@ class ProdDeployment extends AppModel {
 		
 		// remove empty values
 		$this->data["ProdDeployment"] = array_filter($this->data["ProdDeployment"], 'strlen');
+		
+		// validation failed: remove invalid fields from array		
+		$this->logCakeValidationErrors($validates);			
 
 		// all validations passed			
-		if($this->validates()){		
+		if( $validates ){		
 								
 			// curl to force git pull			
 			$this->curl_wrapper(array(
@@ -67,11 +72,7 @@ class ProdDeployment extends AppModel {
 			));
 			*/			
 		}
-		
-		// validation failed: remove invalid fields from array		
-		$this->logCakeValidationErrors();				
-					
-		
+									
 		// Set error status
 		$this->data["ProdDeployment"]["status"] = count( $this->getErrors() ) === 0 ? true : false;
 						

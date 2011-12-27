@@ -203,8 +203,8 @@ class ProstyBehavior extends ModelBehavior {
 	/***************************
 	* beforesave for both types of deployment
 	***************************/		
-	function logCakeValidationErrors($Model){
-		if( !$Model->validates() ) {
+	function logCakeValidationErrors($Model, $validates){
+		if( !$validates ) {
 														
 			foreach($Model->invalidFields() as $errorName => $errors){					
 				$this->logError($Model, array(
@@ -214,7 +214,7 @@ class ProstyBehavior extends ModelBehavior {
 					"return_code" => 0,
 					"type" => "bool"
 				));			
-						
+								
 				unset($Model->data[$Model->name][$errorName]);
 			}
 		}

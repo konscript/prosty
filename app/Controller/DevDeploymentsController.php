@@ -12,7 +12,7 @@ class DevDeploymentsController extends AppController {
 	function beforeFilter(){
 		parent::beforeFilter(); 
 		$this->Auth->allow('add');
-	}	
+	}
 
 	/**
 	 * add method
