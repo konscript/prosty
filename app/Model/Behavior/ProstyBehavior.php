@@ -207,8 +207,11 @@ class ProstyBehavior extends ModelBehavior {
 		if( !$validates ) {
 														
 			foreach($Model->invalidFields() as $errorName => $errors){					
+			
+				$request = empty($Model->data[$Model->name][$errorName]) ? "Input field '".$errorName."' is empty" : $Model->data[$Model->name][$errorName];
+			
 				$this->logError($Model, array(
-					"request" => $Model->data[$Model->name][$errorName],
+					"request" => $request,
 					"response" => json_encode($errors),
 					"calling_function" => $errorName,
 					"return_code" => 0,
