@@ -23,9 +23,6 @@
 							<?php echo $this->Html->link(__('Projects'), array('controller'=>'projects', 'action' => 'index')); ?>
 						</li>
 						<li>
-							<?php echo $this->Html->link(__('Commits'), array('controller'=>'commits', 'action' => 'index')); ?>
-						</li>
-						<li>
 							<?php echo $this->Html->link(__('Deployments'), array('controller'=>'deployments', 'action' => 'index')); ?>
 						</li>
 						<li>

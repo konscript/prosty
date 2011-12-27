@@ -1,52 +1,47 @@
 <?php
 App::uses('AppModel', 'Model');
 App::import('Vendor', 'Git');
-/**
- * Commit Model
- *
- * @property Project $Project
- * @property Deployment $Deployment
- */
-class Commit extends AppModel {
 
+class DevDeployment extends AppModel {
+
+  public $useTable = 'deployments';
 	public $displayField = 'hash';
 	public $actsAs = array('Prosty');	
 	
-function beforeValidate(){
-	$payload = $this->data["Commit"]["payload"];
+	function beforeValidate(){
+		$payload = $this->data["DevDeployment"]["payload"];
 
-	$number_of_commits = count($payload->commits);
+		$number_of_commits = count($payload->commits);
 
-	// get project_id via project_alias
-	$projects = $this->Project->find('first', array(
-		'conditions' => array('project_alias' => $payload->repository->name),
-		'recursive' => -1,
-		'fields' => array('id')
-	));		
+		// get project_id via project_alias
+		$projects = $this->Project->find('first', array(
+			'conditions' => array('project_alias' => $payload->repository->name),
+			'recursive' => -1,
+			'fields' => array('id')
+		));		
 	
-	// get user_id via user's email
-	$user = $this->CreatedBy->UserEmail->find('first', array(
-		'conditions' => array('email' => $payload->pusher->email),
-		'recursive' => -1,
-		'fields' => array('user_id')
-	));		
+		// get user_id via user's email
+		$user = $this->CreatedBy->UserEmail->find('first', array(
+			'conditions' => array('email' => $payload->pusher->email),
+			'recursive' => -1,
+			'fields' => array('user_id')
+		));		
 
-	// data for DB
-	$this->data["Commit"]["project_id"] = $projects["Project"]["id"];						
-	$this->data["Commit"]["hash"] = $payload->after;			
-	$this->data["Commit"]["last_commit_msg"] = $payload->commits[$number_of_commits-1]->message;			
-	$this->data["Commit"]["number_of_commits"] = $number_of_commits;			
-	$this->data["Commit"]["ip_addr"] = $_SERVER["REMOTE_ADDR"];		
-	$this->data["Commit"]["created_by"] = $user["UserEmail"]["user_id"];
-	$this->data["Commit"]["modified_by"] = $user["UserEmail"]["user_id"];
+		// data for DB
+		$this->data["DevDeployment"]["project_id"] = $projects["Project"]["id"];						
+		$this->data["DevDeployment"]["hash"] = $payload->after;
+		$this->data["DevDeployment"]["last_commit_msg"] = $payload->commits[$number_of_commits-1]->message;				
+		$this->data["DevDeployment"]["created_by"] = $user["UserEmail"]["user_id"];
+		$this->data["DevDeployment"]["modified_by"] = $user["UserEmail"]["user_id"];
 	
-	// data for validation
-	$this->data["Commit"]["branch"] = $payload->ref;
-	$this->data["Commit"]["account"] = $payload->repository->url;
-	$this->data["Commit"]["project_alias"] = $payload->repository->name;		
+		// data for validation			
+		$this->data["DevDeployment"]["ip_addr"] = $_SERVER["REMOTE_ADDR"];			
+		$this->data["DevDeployment"]["branch"] = $payload->ref;
+		$this->data["DevDeployment"]["account"] = $payload->repository->url;
+		$this->data["DevDeployment"]["project_alias"] = $payload->repository->name;		
 	
-	return true;
-}	 	
+		return true;
+	}	 	
  	
 	/*******************
 	* Validations
@@ -65,11 +60,6 @@ function beforeValidate(){
 		'last_commit_msg' => array(
 			'notempty' => array(
 				'rule' => array('notempty'),
-			),
-		),
-		'number_of_commits' => array(
-			'numeric' => array(
-				'rule' => array('numeric'),
 			),
 		),
 		'ip_addr' => array(
@@ -118,7 +108,7 @@ function beforeValidate(){
 		if($this->validates()){
 			
 			// get values
-			$project_alias = $this->data["Commit"]["project_alias"];
+			$project_alias = $this->data["DevDeployment"]["project_alias"];
 			$repo = Git::open($this->getProjectPath($project_alias));	
 
 			// execute git commands	
@@ -134,21 +124,19 @@ function beforeValidate(){
 				"url" => $project_alias . '.konscript.net',
 				"request_method" => "BAN"
 			));					
-												
-			// set status - errors might have occured during git operation
-			$this->data["Commit"]["status"] = count($this->getErrors()) == 0 ? true : false;		
-		
-		// validation error	occured
-		}else{		
-		
-			// remove invalid fields from array
+																
+		// validation failed: remove invalid fields from array
+		}else{				
 			foreach($this->invalidFields() as $errorName => $error){		
-				unset($this->data["Commit"][$errorName]);
+				unset($this->data["DevDeployment"][$errorName]);
 			}
-					
-			// set error status
-			$this->data["Commit"]["status"]	= false;		
 		}
+		
+		// set error status 
+		$this->data["DevDeployment"]["status"] = count($this->getErrors()) == 0 ? true : false;		
+		
+		// set servername
+		$this->data["DevDeployment"]["server"] = "Caesar";		
 		
 		// output errors
 		debug($this->getErrors());
@@ -190,12 +178,12 @@ function beforeValidate(){
  * @var array
  */
 	public $hasMany = array(
-		'CommitError' => array(
-			'className' => 'CommitError',
-			'foreignKey' => 'commit_id',
+		'DeploymentError' => array(
+			'className' => 'DeploymentError',
+			'foreignKey' => 'deployment_id',
 			'dependent' => false,
 		)		
-	);
+	);	
 
 	/**
 	 * Utility functions

@@ -81,9 +81,9 @@ public function beforeSave() {
 	);
 	
 	public $hasMany = array(
-		'Commit' => array(
-			'className' => 'Commit',
-			'foreignKey' => 'created_by'
+		'Deployment' => array(
+			'className' => 'Deployment',
+			'foreignKey' => 'project_id'
 		),
 		'UserEmail' => array(
 			'className' => 'UserEmail',

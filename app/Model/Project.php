@@ -153,10 +153,6 @@ class Project extends AppModel {
  * @var array
  */
 	public $hasMany = array(
-		'Commit' => array(
-			'className' => 'Commit',
-			'foreignKey' => 'project_id',
-		),
 		'Deployment' => array(
 			'className' => 'Deployment',
 			'foreignKey' => 'project_id',
@@ -263,7 +259,7 @@ class Project extends AppModel {
 			
 			exec($cmd . " 2>&1", $output, $return_code);
 			
-			sleep(2);
+			// TODO: don't start download until file has been created
 			
 			// error logging
 			$this->logError(array(

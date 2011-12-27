@@ -32,33 +32,50 @@ class ProstyBehavior extends ModelBehavior {
 	/***************************
 	* add error to array
 	***************************/		
-	function logError($Model, $options = array()){
-		
+	function logError($Model, $options = array()){	
+				
 		$default_options = array(
 			"request" => "",
 			"response" => "",			
 			"calling_function" => "",
 			"return_code" => 1,
 			"type" => null
-		);		
+		);
+		
+		// convert boolean false to 0
+		if(isset($options["type"]) && $options["type"] == "bool" && $options["return_code"] == null){
+			$options["return_code"] = 0;
+		}
+
+		// remove empty 		
+		$options = array_filter($options, 'strlen');
+		
+		// merge with default values		
 		$options = array_merge($default_options, $options);
 
 		// skip if no errors occured
 		if(
 			( !$options["type"] && $options["return_code"] == 0 ) ||
-			( $options["type"] == "bool" && $options["return_code"] === true ) ||
+			( $options["type"] == "bool" && $options["return_code"] == true ) ||
 			( $options["type"] == "curl" && ( $options["return_code"] === 200 || $options["return_code"] === 201 ) )
 		){
 			return;
-		}
+		}		
 		
 		// decode reponse if json 
-		if( $this->is_json($Model, $options["response"]) ){
-			$options["response"] = json_decode($options["response"]);
-		}
+		if( $this->is_json($Model, $options["response"]) ){		
+			$json = json_decode($options["response"]);
+			
+			// only decode json if it is a container for multiple errors (received from external website through curl)					
+			$error = $json[0];
+			if(is_array($error) && array_key_exists("return_code", $error)){
+				$options["response"] = $json;
+			}			
+		}	
 	
-		// add multiple errors - response field, can contain multiple errors
-		if(is_array($options["response"])){
+		// multiple errors
+		$error = $options["response"][0];
+		if(is_array($error) && array_key_exists("return_code", $error)){
 			// iterate errors
 			foreach($options["response"] as $options){
 			
@@ -168,36 +185,19 @@ class ProstyBehavior extends ModelBehavior {
 	* after save for Deployment and Commit
 	***************************/	
 	function saveErrorLogs($Model){
-		$modelName = $Model->name;
-		$modelName_lowercase = strtolower($Model->name);
-		$errorModel = $Model->name."Error";
-		$errorModel = $Model->name."Error";		
-					
+						
 		// log Prosty errors
 		foreach($this->getErrors($Model) as $error){		
 			// set values
-			$Model->data[$errorModel][$modelName_lowercase . "_id"] = $Model->data[$modelName]["id"];			
-			$Model->data[$errorModel]["request"] = $error["request"];			
-			$Model->data[$errorModel]["response"] = $error["response"];
-			$Model->data[$errorModel]["return_code"] = $error["return_code"];
-			$Model->data[$errorModel]["calling_function"] = $error["calling_function"];
+			$Model->data["DeploymentError"]["deployment_id"] = $Model->data[$Model->name]["id"];			
+			$Model->data["DeploymentError"]["request"] = $error["request"];			
+			$Model->data["DeploymentError"]["response"] = $error["response"];
+			$Model->data["DeploymentError"]["return_code"] = $error["return_code"];
+			$Model->data["DeploymentError"]["calling_function"] = $error["calling_function"];
 
 			// save errors
-			$Model->$errorModel->create();
-			$Model->$errorModel->save($Model->data);		
-		}				
-
-		// log cake validation errors
-		foreach($Model->invalidFields() as $errorName => $error){		
-			// set values
-			$Model->data[$errorModel][$modelName_lowercase . "_id"] = $this->data[$modelName]["id"];			
-			$Model->data[$errorModel]["request"] = ""; // TODO: get original value
-			$Model->data[$errorModel]["response"] = $error[0];
-			$Model->data[$errorModel]["calling_function"] = $errorName;
-
-			// save errors
-			$Model->$errorModel->create();
-			$Model->$errorModel->save($this->data);		
-		}					
+			$Model->DeploymentError->create();
+			$Model->DeploymentError->save($Model->data);		
+		}
 	}
 }
