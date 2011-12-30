@@ -22,31 +22,35 @@ class AppController extends Controller {
 		if($this->Auth->user('role_id') == '1'){
 			return true; 
 		}			 
-	
+		
+		// roles
+		$roles = array(
+			1 => 'executive',
+			2 => 'agent'
+		);			
+		
+		// helpful variable renaming
+		$all = $roles;
+		
 		// default permissions
 		$permissions_default = array(
-			'view' => '*',
-			'index' => '*',
-			'add' => '*'
+			'view' => $all,
+			'index' => $all,
+			'add' => $all
 		);     
-		
-		// override default perms
+				
+		// override default permissions
 		$permissions = array_merge($permissions_default, $this->permissions);
 		
-		// check permission for action 
-		if(!empty($permissions[$this->action])){
-        
-			// roles
-			$roles = array(
-				1 => 'executive',
-				2 => 'agent'
-			);
-			$role_alias = $roles[$this->Auth->user('role_id')];
-
-			// access for specific role
-			if(in_array($role_alias, $permissions[$this->action])) return true; 
+		// get current role_alias eg. agent
+		$role_alias = $roles[$this->Auth->user('role_id')];
+		
+		// give access, if role_alias has permissions to th current action. eg. agent (role_alias) can delete (action) users
+		if(!empty($permissions[$this->action]) && in_array($role_alias, $permissions[$this->action])){        
+			return true; 
 		} 
-		return false; 
-         
+		
+		// access denied
+		return false;
 	}
 }
