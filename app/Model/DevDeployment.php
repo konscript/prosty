@@ -114,15 +114,27 @@ class DevDeployment extends AppModel {
 			
 			// get values
 			$project_alias = $this->data["DevDeployment"]["project_alias"];
-			$repo = Git::open($this->getProjectPath($project_alias));	
-
-			// execute git commands	
-			$this->executeAndLogGit($repo, 'branch tmp');
-			$this->executeAndLogGit($repo, 'checkout tmp');
-			$this->executeAndLogGit($repo, 'pull konscript master', true);			
-			$this->executeAndLogGit($repo, 'checkout master -f');	
-			$this->executeAndLogGit($repo, 'merge tmp', true);
-			$this->executeAndLogGit($repo, 'branch tmp -D'); // delete branch
+			
+			try{
+				// open repo
+				$repo = Git::open($this->getProjectPath($project_alias));	
+				
+				// execute git commands	
+				$this->executeAndLogGit($repo, 'branch tmp');
+				$this->executeAndLogGit($repo, 'checkout tmp');
+				$this->executeAndLogGit($repo, 'pull konscript master', true);			
+				$this->executeAndLogGit($repo, 'checkout master -f');	
+				$this->executeAndLogGit($repo, 'merge tmp', true);
+				$this->executeAndLogGit($repo, 'branch tmp -D'); // delete branch				
+			
+			// catch errors opening repo	
+			}catch(Exception $e){						
+				$this->logError(array(
+					"request" => "Git::open(".$this->getProjectPath($project_alias).")",
+					"response" => $e->getMessage(),			
+					"calling_function" => __function__
+				));				
+			}
 				
 			// clear cache on Caesar
 			$this->curl_wrapper(array(

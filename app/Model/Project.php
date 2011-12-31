@@ -156,6 +156,7 @@ class Project extends AppModel {
 		'Deployment' => array(
 			'className' => 'Deployment',
 			'foreignKey' => 'project_id',
+			'order' => array('Deployment.id DESC'),
 			'dependent' => false,
 		)				
 	);

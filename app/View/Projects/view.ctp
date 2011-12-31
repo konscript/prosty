@@ -1,7 +1,7 @@
 <div class="projects view">
 <div class="related">
-	<h3><?php echo __('Commits for '. $project['Project']['title']);?></h3>
-	<?php if (!empty($project['Commit'])):?>
+	<h3><?php echo __('Deployments for '. $project['Project']['title']);?></h3>
+	<?php if (!empty($project['Deployment'])):?>
 	<table cellpadding = "0" cellspacing = "0">
 	<tr>
 		<th><?php echo __('Commit Hash'); ?></th>
@@ -11,12 +11,12 @@
 	</tr>
 	<?php
 		$i = 0;
-		foreach ($project['Commit'] as $commit): ?>
+		foreach ($project['Deployment'] as $deployment): ?>
 		<tr>
-			<td><?php echo $commit['hash'];?></td>
-			<td><?php echo $commit['last_commit_msg'];?></td>
-			<td><?php echo $commit['created'];?></td>
-			<td><?php echo $commit['User']['username'];?></td>
+			<td><?php echo $deployment['hash'];?></td>
+			<td><?php echo $deployment['last_commit_msg'];?></td>
+			<td><?php echo $deployment['created'];?></td>
+			<td><?php echo @$deployment['User']['username'];?></td>
 		</tr>
 	<?php endforeach; ?>
 	</table>
