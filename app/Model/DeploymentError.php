@@ -16,31 +16,16 @@ class DeploymentError extends AppModel {
 		'deployment_id' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
 		),
 		'calling_function' => array(
 			'notempty' => array(
 				'rule' => array('notempty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
 		),
 		'message' => array(
 			'notempty' => array(
 				'rule' => array('notempty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
 		),
 	);
@@ -48,10 +33,17 @@ class DeploymentError extends AppModel {
 function afterFind($results) {
 
 	foreach($results as $id=>$result){
+	
+		// decode json request and responses
 		$request = $result["DeploymentError"]["request"];
 		if($this->is_json($request)){
-			$results[$id]["DeploymentError"]["request"] = json_decode( $request);
+			$results[$id]["DeploymentError"]["request"] = json_decode($request);
 		}		
+		$response = $result["DeploymentError"]["response"];
+		if($this->is_json($response)){
+			$results[$id]["DeploymentError"]["response"] = json_decode($response);
+		}				
+		
 	}
 	
 	return $results;

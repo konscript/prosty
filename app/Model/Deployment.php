@@ -3,6 +3,7 @@ App::uses('AppModel', 'Model');
 App::import('Vendor', 'Git');
 
 class Deployment extends AppModel {
+	public $actsAs = array('Prosty');	
 	
 /**
  * belongsTo associations

@@ -128,7 +128,7 @@ class Project extends AppModel {
 		}
 	
 		// success
-		if(count($this->getErrors()) == 0){
+		if($this->getErrorCount() == 0){
 			return true;
 			
 		// error
@@ -207,25 +207,8 @@ class Project extends AppModel {
 			"calling_function" => __function__,
 			"return_code" => $return_code
 		));
-	}	
-	
-	/***************************
-	* write values to vhost
-	***************************/			
-	function writeToFile($filename, $content){
-		$response = file_put_contents($filename, $content);
+	}
 		
-		// file_put_contents will return 
-		$return_code = is_int($response) && $response > 0 ? TRUE : FALSE;		
-	
-		$this->logError(array(
-			"message" => "$filename could not be updated",
-			"calling_function" => __function__,
-			"return_code" => $return_code,
-			"type" => "bool"
-		));
-	}				   	
-	
 	/***************************
 	* Create and download zipped project
 	***************************/		

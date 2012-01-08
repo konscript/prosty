@@ -2,7 +2,7 @@
 App::uses('AppModel', 'Model');
 App::import('Vendor', 'Git');
 
-class ProdDeployment extends AppModel {
+class ResolveDeployment extends AppModel {
 
   public $useTable = 'deployments';
 	public $actsAs = array('Prosty');
@@ -83,16 +83,9 @@ class ProdDeployment extends AppModel {
 	* afterSave: log errors
 	*******************/	
 	function afterSave(){
-	
-		// Deployment successful: Add to NewRelic
-		if($this->getErrorCount() === 0){		
-			$project_id = $this->data["ProdDeployment"]["project_id"];
-			$this->newrelic_hook($project_id);
-		}
-		
+
 		// save errors to log
 		$this->saveErrorLogs();
-
 
 	}
 	
@@ -123,27 +116,5 @@ class ProdDeployment extends AppModel {
 			'dependent' => false,
 		)		
 	);			
-	
-	/***************************
-	* add deployment to NewRelic		
-	***************************/			
-	function newrelic_hook($project_id){
-	
-		// get values
-		$project_alias = $this->getProjectAlias($project_id);		
-		$projects = $this->Project->Deployment->find('first', array(
-			'conditions' => array('Deployment.project_id' => $project_id)
-		));
 
-		// make curl request
-		$this->curl_wrapper(array(
-			"url" => "https://rpm.newrelic.com/deployments.xml",
-			"headers" => array('x-api-key: '. Configure::read('NewRelic.rest')),
-			"data" => array(
-				'app_name' => $project_alias,
-				'user' => $_SESSION["Auth"]["User"]["username"],
-				'description' => $projects["Deployment"]["last_commit_msg"]
-			)
-		));			
-	}	 		
 }

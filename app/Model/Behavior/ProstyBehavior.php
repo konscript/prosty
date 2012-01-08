@@ -8,6 +8,10 @@ class ProstyBehavior extends ModelBehavior {
 		return $this->errors;
 	}
 	
+	function getErrorCount($Model){
+		return count($this->errors);
+	}	
+	
 	function getWebRoot($Model){
 		return $this->web_root;
 	}	
@@ -33,13 +37,18 @@ class ProstyBehavior extends ModelBehavior {
 	* add error to array
 	***************************/		
 	function logError($Model, $options = array()){	
-				
+	
+		// get calling function from backtrace
+		$debug = debug_backtrace();				 
+		$calling_function = $debug[1]["function"];		
+
 		$default_options = array(
-			"request" => "",
-			"response" => "",			
-			"calling_function" => "",
+			"request" => null,
+			"response" => null,			
+			"calling_function" => $calling_function,
 			"return_code" => 1,
-			"type" => null
+			"type" => null,
+			"suppressErrors" => false
 		);
 		
 		// convert boolean false to 0
@@ -47,21 +56,26 @@ class ProstyBehavior extends ModelBehavior {
 			$options["return_code"] = 0;
 		}
 
-		// remove empty 		
+		// remove empty options
 		$options = array_filter($options, 'strlen');
 		
 		// merge with default values		
-		$options = array_merge($default_options, $options);
+		$options = array_merge($default_options, $options);	
+
+		// todo remove
+		debug($options);
 
 		// skip if no errors occured
 		if(
 			( !$options["type"] && $options["return_code"] == 0 ) ||
 			( $options["type"] == "bool" && $options["return_code"] == true ) ||
-			( $options["type"] == "curl" && ( $options["return_code"] === 200 || $options["return_code"] === 201 ) )
+			( $options["type"] == "curl" && ( $options["return_code"] === 200 || $options["return_code"] === 201 ) ) ||
+			( $options["type"] == "successOnEmptyResponse" && empty($options["response"])  ) ||
+			( $options["suppressErrors"] === true )
 		){
 			return;
 		}		
-		
+						
 		// decode reponse if json 
 		if( $this->is_json($Model, $options["response"]) ){		
 			$json = json_decode($options["response"]);
@@ -98,32 +112,63 @@ class ProstyBehavior extends ModelBehavior {
 			);				
 		}		
 	}  		 
-	
+
 	/***************************
 	* log git commands if they return errors
-	***************************/			
-  function executeAndLogGit($Model, $repo, $git_command, $skipOnError = false){
-      
-  	// skip certain git commands if an error occured
-		if(count($this->errors) > 0 && $skipOnError === true){
-			return;
-		}		
-		$git_response = $repo->git_run_with_validation($git_command);
+	***************************/		  
+  function executeAndLogGit($Model, $repo, $git_command, $options = array()){
+  
+  	$default_options = array(
+  		'skipOnError' => true,
+  		'suppressErrors' => false
+  	);  	  	
+		$options = array_merge($default_options, $options);  	
 
+  	// skip further steps, if an error occured
+		if($this->getErrorCount($Model) > 0 && $options["skipOnError"] === true){		return false;		}
+		
+		// execute command and get respose + return_code
+		$git_response = $repo->git_run_with_validation($git_command);			
+		$response = $git_response[2] . " " .$git_response[1];
+		$return_code = $git_response[0];
+		
+		// log possible errors		
 		$this->logError($Model, array(
 				"request" => "git " . $git_command,
-				"response" => $git_response[2],
-				"calling_function" => $git_command,
-				"return_code" => $git_response[0]
-		));			
-  }				
+				"response" => $response,
+				"return_code" => $git_response[0],
+				"suppressErrors" => $options["suppressErrors"]
+		));		
+		
+		return true;
+  }
   
+	/***************************
+	* determine if a string is json or not
+	***************************/	  
   function is_json($Model, $str){
 		$json = json_decode($str);
-		
 		return ($json != null && json_last_error() === JSON_ERROR_NONE) ? true : false;
-
   }
+  
+  
+	/***************************
+	* write content to file
+	***************************/			
+	function writeToFile($Model, $filename, $content, $flags = 0){
+		$response = file_put_contents($filename, $content, $flags);
+		
+		// file_put_contents will return 
+		$return_code = is_int($response) && $response > 0 ? TRUE : FALSE;		
+	
+		$this->logError($Model, array(
+			"request" => "filename: $filename, content: $content, flags: $flags",
+			"response" => "$filename could not be updated",
+			"calling_function" => __function__,
+			"return_code" => $return_code,
+			"type" => "bool"
+		));
+	}  
 			
 	/***************************
 	* wrapper function for cURL requests
@@ -141,7 +186,7 @@ class ProstyBehavior extends ModelBehavior {
 		$options = array_merge($default_options, $options);
 		
   	// skip curl if an error occured
-		if(count($this->errors) > 0 && $options["skipOnError"] == true){			
+		if($this->getErrorCount($Model) > 0 && $options["skipOnError"] == true){			
 			return;
 		}		
 	
@@ -174,7 +219,6 @@ class ProstyBehavior extends ModelBehavior {
     $this->logError($Model, array(
 			"request" => json_encode($options),
 			"response" => $response,			
-			"calling_function" => __function__,
 			"return_code" => $info["http_code"],
 			"type" => "curl"
 		));				

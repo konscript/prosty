@@ -28,25 +28,26 @@ class AppController extends Controller {
 			1 => 'executive',
 			2 => 'agent'
 		);			
-		
-		// helpful variable renaming
-		$all = $roles;
-		
-		// default permissions
+				
+		// default permissions - everyone has access to view, index and add
 		$permissions_default = array(
-			'view' => $all,
-			'index' => $all,
-			'add' => $all
+			'view' => '*',
+			'index' => '*',
+			'add' => '*'
 		);     
 				
 		// override default permissions
-		$permissions = array_merge($permissions_default, $this->permissions);
+		$permissions = array_merge($permissions_default, $this->permissions);		
 		
 		// get current role_alias eg. agent
 		$role_alias = $roles[$this->Auth->user('role_id')];
 		
 		// give access, if role_alias has permissions to th current action. eg. agent (role_alias) can delete (action) users
-		if(!empty($permissions[$this->action]) && in_array($role_alias, $permissions[$this->action])){        
+		$allowedRoles = isset($permissions[$this->action]) ? $permissions[$this->action] : false;
+		if(
+			( is_array($allowedRoles) && in_array($role_alias, $allowedRoles)) ||
+			( isset($allowedRoles) && $allowedRoles == '*' )
+		){
 			return true; 
 		} 
 		
