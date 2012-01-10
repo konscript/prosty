@@ -7,8 +7,11 @@ class DevDeployment extends AppModel {
   public $useTable = 'deployments';
 	public $displayField = 'hash';
 	public $actsAs = array('Prosty');	
-	
-	function beforeValidate(){			
+
+	/***************************		 
+	* beforeValidate
+	***************************/
+	function beforeValidate(){
 		$payload = $this->data["DevDeployment"]["payload"];		
 
 		$number_of_commits = count($payload->commits);
@@ -106,9 +109,8 @@ class DevDeployment extends AppModel {
 	
 		$validates = $this->validates();
 
-	
 		// validation failed: remove invalid fields from array				
-		$this->logCakeValidationErrors($validates);				
+		$this->logCakeValidationErrors($validates);
 		
 		// all validations passed
 		if($validates){
@@ -162,11 +164,9 @@ class DevDeployment extends AppModel {
 		$this->saveErrorLogs();
 	}
 
-/**
- * belongsTo associations
- *
- * @var array
- */
+	/***************************		 
+	* belongsTo associations
+	***************************/		 
 	public $belongsTo = array(
 		'Project' => array(
 			'className' => 'Project',
@@ -182,11 +182,9 @@ class DevDeployment extends AppModel {
 		)		
 	);
 
-/**
- * hasMany associations
- *
- * @var array
- */
+	/***************************		 
+	* hasMany associations
+	***************************/		 
 	public $hasMany = array(
 		'DeploymentError' => array(
 			'className' => 'DeploymentError',
@@ -194,87 +192,7 @@ class DevDeployment extends AppModel {
 			'dependent' => false,
 		)		
 	);	
-
-	/**
-	 * Utility functions
-	 *******************************************************************************************/
-	 
-	/***************************	 
-	* attempt to open git repo - if it fails (if git is not init) log the error
-	***************************/	 	
-	function openRepo($project_path){
-		try{
-			$repo = Git::open($project_path);
-			
-		// catch errors opening repo	
-		}catch(Exception $e){
-			$repo = false;
-			$this->DevDeployment->logError(array(
-				"request" => "Git::open(".$project_path.")",
-				"response" => $e->getMessage()
-			));
-		}
-		return $repo;
-	}  	 
-
-	/***************************	 
-	* when examining a merge conflict, we need a list of the files in conflict
-	****************************/	 	
-	function getConflictingFiles($project_path){
-		$cmd = "cd ".escapeshellarg($project_path)." && git ls-files --unmerged | cut -f2 | uniq";
-		exec($cmd, $files);			
-		return $files;
-	}	
-	
-	/***************************	 	
-	* log the list of files with cannot be merged
-	***************************/	 	
-	function logConflictingFiles($project_path){
 		
-		$response = $this->getConflictingFiles($project_path);
-	
-		$this->logError(array(
-				"request" 					=> "git pull konscript master",
-				"response" 					=> json_encode($response),
-				"calling_function"	=> __function__
-		));				
-	}
-
-	/***************************		 
-	* fix merge conflicts with respect to --theirs or --ours
-	****************************/	 	
-	function resolveConflictingFiles($project_path){
-	
-		// open repo
-		$repo = $this->openRepo($project_path);
-		
-		// pull from GitHub
-		$this->executeAndLogGit($repo, 'pull konscript master', array('suppressErrors' => true));
-		
-		// checkout their files (GitHub))
-	 	if(isset($_REQUEST["files"]["theirFiles"]) && is_array($_REQUEST["files"]["theirFiles"])){
-	 		$theirFiles = implode(" ", $_REQUEST["files"]["theirFiles"]);
-			$this->executeAndLogGit($repo, 'checkout --theirs ' . $theirFiles);
-		}
-		
-		// checkout our files (Caesar)
-	 	if(isset($_REQUEST["files"]["ourFiles"]) && is_array($_REQUEST["files"]["ourFiles"])){
-	 		$ourFiles = implode(" ", $_REQUEST["files"]["ourFiles"]);		
-			$this->executeAndLogGit($repo, 'checkout --ours ' . $ourFiles);
-		}
-		
-		// revert, if there are still conflicting files after merge attempt
-		$conflictingFiles = $this->getConflictingFiles($project_path);
-		if(count($conflictingFiles) > 0){
-			$this->executeAndLogGit($repo, 'reset --hard ORIG_HEAD', array('skipOnError' => false));		
-		}
-		
-		// commit and push new files
-		$this->executeAndLogGit($repo, 'add ' . $ourFiles ." ".$theirFiles);
-		$this->executeAndLogGit($repo, 'commit -m "automatic merge resolving, using '.count($_REQUEST["files"]["theirFiles"]).' of their files, '.count($_REQUEST["files"]["ourFiles"]).' of ours"');
-		$this->executeAndLogGit($repo, 'push konscript master');
-	}
-	
 	/***************************
 	* log any uncommited or unadded files
 	***************************/				
@@ -304,41 +222,12 @@ class DevDeployment extends AppModel {
 				"type"							=> "successOnEmptyResponse",
 				"calling_function"	=> __function__
 		));			
-  }				
-
-	/***************************
-	* add/commit files	or gitignore files
-	****************************/	 	
-	function resolveUnstagedFiles($repo, $project_path){ 
- 
-	 	if(isset($_REQUEST["files"]["ignoreFiles"]) && is_array($_REQUEST["files"]["ignoreFiles"])){
-	 		$ignoredFiles = implode(" ", $_REQUEST["files"]["ignoreFiles"]);
-	 		
-			// remove files from index but keep in working repository
-			$this->executeAndLogGit($repo, 'rm --cached ' . $ignoredFiles, array('suppressErrors' => true));
-			
-			// add files to .gitignore
-	 		$ignoredFilesForGitIgnore = implode("\n", $_REQUEST["files"]["ignoreFiles"]);			
-	 		$filename = $project_path."/.gitignore";
-	 		$content = "\n# Added: " . date("d-m-y", time()) ." \n". $ignoredFilesForGitIgnore;
-			$this->writeToFile($filename, $content, FILE_APPEND);
-			
-			// commit gitignore changes to git
-			$this->executeAndLogGit($repo, 'add .gitignore');
-			$this->executeAndLogGit($repo, 'commit -m "Automatic gitignore update"');
-	 	}
-	 	
-	 	if(isset($_REQUEST["files"]["commitFiles"]) && is_array($_REQUEST["files"]["commitFiles"])){
-
-	 		// array to string
-	 		$commitedFiles = implode(" ", $_REQUEST["files"]["commitFiles"]);
-	 	
-			// add and commit
-			$this->executeAndLogGit($repo, 'add ' . $commitedFiles);
-			$this->executeAndLogGit($repo, 'commit -m "Redeploy by user"');						
-	 	}
-	}
-
+  }
+  
+	/***************************		 
+	* Validation utility functions
+	***************************/  
+	  
 	// payload must originate from Github.com
 	function validateHostname($check){
     	$host = gethostbyaddr($check["ip_addr"]);    	    	

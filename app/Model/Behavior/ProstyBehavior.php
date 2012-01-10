@@ -1,4 +1,5 @@
 <?php
+
 class ProstyBehavior extends ModelBehavior {
 
 	public $web_root = "/srv/www/";	
@@ -169,6 +170,24 @@ class ProstyBehavior extends ModelBehavior {
 			"type" => "bool"
 		));
 	}  
+	
+	/***************************	 
+	* attempt to open git repo - if it fails (if git is not init) log the error
+	***************************/	 	
+	function openRepo($Model, $project_path){
+		try{
+			$repo = Git::open($project_path);
+			
+		// catch errors opening repo	
+		}catch(Exception $e){
+			$repo = false;
+			$this->logError($Model, array(
+				"request" => "Git::open(".$project_path.")",
+				"response" => $e->getMessage()
+			));
+		}
+		return $repo;
+	}	
 			
 	/***************************
 	* wrapper function for cURL requests
@@ -222,7 +241,16 @@ class ProstyBehavior extends ModelBehavior {
 			"return_code" => $info["http_code"],
 			"type" => "curl"
 		));				
-	}		
+	}
+	
+	/***************************	 
+	* when examining a merge conflict, we need a list of the files in conflict
+	****************************/	 	
+	function getConflictingFiles($Model, $project_path){
+		$cmd = "cd ".escapeshellarg($project_path)." && git ls-files --unmerged | cut -f2 | uniq";
+		exec($cmd, $files);			
+		return $files;
+	}	
 
 	/***************************
 	* after save for both types of deployment

@@ -2,7 +2,7 @@
 	<dl>
 		<dt><?php echo __('Project'); ?></dt>
 		<dd>
-			<?php echo $this->Html->link($deployment['Project']['title'], array('id'=>'asda', 'controller' => 'projects', 'action' => 'view', $deployment['Project']['id'])); ?>
+			<?php echo $this->Html->link($deployment['Project']['title'], array('controller' => 'projects', 'action' => 'view', $deployment['Project']['id'])); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('Deployed by'); ?></dt>
@@ -19,30 +19,20 @@
 </div>
 
 <?php if(isset($unstagedFiles)): ?>
-	<?php echo $this->Form->create(null, array('url' => '/dev_deployments/resolveUnstagedFilesInit/' . $deployment['Project']['project_alias'], 'id'=>'resolveUnstagedFiles', 'class' => 'resolveDialog')); ?>	
+	<?php echo $this->Form->create(null, array('url' => '/resolve_deployments/add/' . $deployment['Project']['id'] .'/unstaged', 'id'=>'resolveUnstagedFiles', 'class' => 'resolveDialog')); ?>	
 		<div id="unresolvedFiles">
-			<?php if(isset($unstagedFiles["untracked"])): ?>
-				<p class="header">New and untracked files:</p>
-				<?php foreach ($unstagedFiles["untracked"] as $id=>$filename): ?>
-					<?php $name = "file_untracked_" . $id; ?>
-					<p class="file"><input type="checkbox" data-filename="<?php echo $filename ?>" name="<?php echo $name ?>" id="<?php echo $name ?>" /> <label for="<?php echo $name ?>"> <?php echo $filename ?> </label> </p>
-				<?php endforeach; ?>		
+			<?php if(isset($unstagedFiles["new"])): ?>
+				<?php echo $this->Util->resolveFilesView("new", "New files", $unstagedFiles["new"]); ?>
 			<?php endif; ?>
 		
-			<?php if(isset($unstagedFiles["uncommited"])): ?>
-				<p class="header">Changed and uncommited files:</p>
-				<?php foreach ($unstagedFiles["uncommited"] as $id=>$filename): ?>			
-					<?php $name = "file_uncommited_" . $id; ?>
-					<p class="file"><input type="checkbox" data-filename="<?php echo $filename ?>" name="<?php echo $name ?>" id="<?php echo $name ?>" /> <label for="<?php echo $name ?>"> <?php echo $filename ?> </label> </p>
-				<?php endforeach; ?>
+			<?php if(isset($unstagedFiles["changed"])): ?>
+				<?php echo $this->Util->resolveFilesView("changed", "Changed files", $unstagedFiles["changed"]); ?>		
 			<?php endif; ?>
 		</div>
 
 		<div id="resolvedFiles">
-			<p class="header">Files to be ignored:</p>		
-			<div id="ignoreFiles"></div>
-			<p class="header">Files to be commited:</p>			
-			<div id="commitFiles"></div>
+			<?php echo $this->Util->resolveFilesView("ignoreFiles", "Files to be ignored"); ?>		
+			<?php echo $this->Util->resolveFilesView("commitFiles", "Files to be commited"); ?>		
 		</div>
 	
 		<input type="submit" value="Ignore" id="ignoreFiles" class="addFiles">
@@ -54,21 +44,14 @@
 <?php endif; ?>						
 
 <?php if(isset($conflictingFiles)): ?>
-	<?php echo $this->Form->create(null, array('url' => '/dev_deployments/resolveConflictingFilesInit/' . $deployment['Project']['project_alias'], 'id'=>'resolveConflictingFiles', 'class' => 'resolveDialog')); ?>	
+	<?php echo $this->Form->create(null, array('url' => '/resolve_deployments/add/' . $deployment['Project']['id'] .'/unmerged', 'id'=>'resolveConflictingFiles', 'class' => 'resolveDialog')); ?>	
 		<div id="unresolvedFiles">
-
-				<p class="header">Unmerged files:</p>
-				<?php foreach ($conflictingFiles as $id=>$filename): ?>
-					<?php $name = "file_untracked_" . $id; ?>
-					<p class="file"><input type="checkbox" data-filename="<?php echo $filename ?>" id="<?php echo $name ?>" /> <label for="<?php echo $name ?>"> <?php echo $filename ?> </label> </p>
-				<?php endforeach; ?>		
+			<?php echo $this->Util->resolveFilesView("unmergedFiles", "Unmerged files", $conflictingFiles); ?>
 		</div>
 
 		<div id="resolvedFiles">
-			<p class="header">Use GitHub's version:</p>		
-			<div id="theirFiles"></div>
-			<p class="header">Use Caesar's (local) version:</p>			
-			<div id="ourFiles"></div>
+			<?php echo $this->Util->resolveFilesView("theirFiles", "Use GitHub's version"); ?>						
+			<?php echo $this->Util->resolveFilesView("ourFiles", "Use Caesar's (local) version"); ?>			
 		</div>
 	
 		<input type="submit" value="Use Github version" id="theirFiles" class="addFiles">
