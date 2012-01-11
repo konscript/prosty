@@ -65,7 +65,7 @@ $(document).ready(function() {
 	// click on deploy button
 	$('.resolveDialog #redeploy').click(function(){
 		// disable button and fadein loading
-		//$(this).attr('disabled', 'disabled');
+		$(this).attr('disabled', 'disabled');
     $(".loading").fadeIn();
     $("#debugger").html(""); 
     
