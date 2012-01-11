@@ -3,7 +3,6 @@
 	<table cellpadding="0" cellspacing="0">
 	<thead>
 	<tr>
-
 			<th><?php echo $this->Paginator->sort('title');?></th>
 			<th><?php echo $this->Paginator->sort('prod_url');?></th>
 			<th class="actions"><?php echo __('Actions');?></th>
