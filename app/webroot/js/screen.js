@@ -16,7 +16,8 @@ $(document).ready(function() {
 	addFiles();
 	deployFiles();
 	toggleErrors();
-	
+	addEmail();
+	removeEmail()	
 });
 
 /********************
@@ -118,4 +119,62 @@ function toggleErrors(){
 		$(this).hide();
 		return false;
 	});
+}
+
+/*********************
+* create new email record
+*********************/
+function addEmail(){
+	$('.addEmail').click(function(){
+		var countEmails = $("input.email").length;
+		console.log(countEmails);	
+		
+		var lastEmailField = $('input.email:last').parents('div.input');			
+		
+		// clone last email field
+		var newEmailField = $(lastEmailField).clone();			
+	
+		// set label "for"-attribute
+		$(newEmailField).children('label').attr('for', 'UserEmail'+countEmails+'Email');
+		
+		// set input "name"-attribute
+		$(newEmailField).children('input').attr('name', 'data[UserEmail]['+countEmails+'][email]');
+		
+		// set input "id"-attribute
+		$(newEmailField).children('input').attr('id', 'UserEmail'+countEmails+'Email');
+
+		// clear value
+		$(newEmailField).children('input').val('');		
+			
+		// insert
+		$(newEmailField).insertAfter(lastEmailField).hide().fadeIn();
+		
+		return false;
+	});
+}
+
+// delete email record
+function removeEmail(){
+	$('.removeEmail').live('click', function(){
+		var container = $(this).parents('div.input');
+		
+		// get email id
+		var idField = $(container).prev('input[type=hidden]');
+		var email_id = $(idField).val();
+		
+		// delete email
+		if(email_id){
+			$.post('/user_emails/delete/' + email_id).success(function() { 
+			
+				// fadeout and remove DOM element
+				$(container).fadeOut().delay(1000, function(){
+					$(idField).remove();
+					$(this).remove();
+				});			
+			
+			});
+		}
+
+		return false;
+	});	
 }

@@ -7,6 +7,11 @@ App::uses('AppController', 'Controller');
  */
 class UserEmailsController extends AppController {
 
+	// action specific permissions
+  public $permissions = array(
+  	'edit' => '*',
+  	'delete' => '*',  	
+  );
 
 /**
  * index method
@@ -85,7 +90,8 @@ class UserEmailsController extends AppController {
 	public function delete($id = null) {
 		if (!$this->request->is('post')) {
 			throw new MethodNotAllowedException();
-		}
+		}		
+				
 		$this->UserEmail->id = $id;
 		if (!$this->UserEmail->exists()) {
 			throw new NotFoundException(__('Invalid user email'));

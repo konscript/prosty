@@ -90,20 +90,20 @@ class UsersController extends AppController {
  * @param string $id
  * @return void
  */
-	public function edit($id = null) {
+	public function edit($id = null) {	
 	
 		// user can only edit own user
 		if($this->Auth->user('id') != $id){
 			$this->Session->setFlash(__('You are only allowed to edit you own profile'));		
 			$this->redirect(array('action' => 'index'));
 		}
-	
+
 		$this->User->id = $id;
 		if (!$this->User->exists()) {
 			throw new NotFoundException(__('Invalid user'));
 		}
-		if ($this->request->is('post') || $this->request->is('put')) {
-			if ($this->User->save($this->request->data)) {
+		if ($this->request->is('post') || $this->request->is('put')) {		
+			if ($this->User->saveAssociated($this->request->data)) {
 				$this->Session->setFlash(__('The user has been saved'));
 				$this->redirect(array('action' => 'index'));
 			} else {
@@ -112,8 +112,7 @@ class UsersController extends AppController {
 		} else {
 			$this->request->data = $this->User->read(null, $id);
 		}
-		$roles = $this->User->Role->find('list');
-		$this->set(compact('roles'));
+
 	}
 
 /**

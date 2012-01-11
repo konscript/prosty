@@ -20,6 +20,7 @@ class UserEmail extends AppModel {
 		'email' => array(
 			'email' => array(
 				'rule' => array('email'),
+		    'message' => 'Please enter a valid email!'				
 			),
 		),
 	);
