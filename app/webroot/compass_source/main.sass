@@ -2,7 +2,8 @@
 // Main (main.scss)
 //
 
-@import "_base"
+@import "base"
+@import "mixins"
 
 @import "compass/css3/box-shadow"
 @import "compass/css3/border-radius"
@@ -119,10 +120,14 @@ $main-color-link: rgb(57, 110, 156)
 
 //--------- ELEMENTS ---------//
 
+input:after
+	content: "asda"
+
 form
 	div, p
 		display: block
 		margin-bottom: 8px
+		+clearfix
 		
 		input[type="text"], input[type="password"], input[type="email"]
 			border: 1px solid rgb(193, 193, 193)
