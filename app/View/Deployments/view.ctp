@@ -78,12 +78,9 @@
 	
 	
 	
-<div id="debugger">	
-
-</div>
+<div id="debugger">	</div>
 	
-	
-
+<br><a class="showDeploymentErrors" href="#">Show errors</a>
 <div class="deploymentErrors">
 	<h3><?php echo __('Errors during deployment');?></h3>
 	<?php if (!empty($deployment['DeploymentError'])):?>
