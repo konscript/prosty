@@ -6,6 +6,7 @@ class ResolveDeployment extends AppModel {
 
   public $useTable = 'deployments';
 	public $actsAs = array('Prosty');
+	var $order = "ResolveDeployment.id DESC";		
 	
 	public $validate = array(
 		'project_id' => array(
@@ -19,8 +20,7 @@ class ResolveDeployment extends AppModel {
 	/*******************
 	* beforeSave: deploy project, clone folders and run git
 	*******************/			
-	function beforeSave(){
-	
+	function beforeSave(){	
 		$validates = $this->validates();
 		
 		// validation failed: log and remove invalid fields from array				
@@ -59,20 +59,15 @@ class ResolveDeployment extends AppModel {
 				// gitpull was attempted but merge errors occured: revert git pull
 				if($gitPull === true && $this->getErrorCount() > 0){
 					$this->logConflictingFiles($project_path);
-					$this->executeAndLogGit($repo, 'reset --hard ORIG_HEAD', array('skipOnError' => false));
-					echo "failure";
+					$this->executeAndLogGit($repo, 'reset --hard ORIG_HEAD', array('skipOnError' => false));					
 				}else{
-					$this->executeAndLogGit($repo, 'push konscript master');
-					echo "Success";
+					$this->executeAndLogGit($repo, 'push konscript master');					
 				}				
 			}
 		}
 		
 		// set error status 
 		$this->data["ResolveDeployment"]["status"] = $this->getErrorCount() == 0 ? true : false;				
-		
-		echo "errors";
-		debug($this->getErrors());
 						
 		return true;
 	}
@@ -82,6 +77,16 @@ class ResolveDeployment extends AppModel {
 	*******************/	
 	function afterSave(){
 		$this->saveErrorLogs();
+
+			// error: output URL to newest deploy		
+			if($this->getErrorCount() > 0 ) {
+				$latest_deployment = $this->find('first');
+				echo json_encode(array("url" => FULL_BASE_URL."/deployments/view/" . $latest_deployment["ResolveDeployment"]["id"]));
+				
+			// success: output URL to deployment index				
+			}else{
+				echo json_encode(array("url" => FULL_BASE_URL."/deployments/index"));			
+			}
 	}
 	
 	
@@ -217,7 +222,7 @@ class ResolveDeployment extends AppModel {
 		}
 			
 		// set commit message
-		$commit_message = 'automatic merge resolving, using '.count($_REQUEST["files"]["theirFiles"]).' of their files, '.count($_REQUEST["files"]["ourFiles"]).' of ours';
+		$commit_message = 'automatic merge resolving, using '.$this->countFileArray("theirFiles").' of their files, '.$this->countFileArray("ourFiles").' of ours';
 		
 		// revert, if there are still conflicting files after merge attempt
 		$conflictingFiles = $this->getConflictingFiles($project_path);
@@ -235,6 +240,20 @@ class ResolveDeployment extends AppModel {
 	}
 	
 	/***************************	 	
+	* HELPER: check if index is available, and how many elements it contains
+	***************************/	 			
+ 	function countFileArray($index){
+ 		$files = $_REQUEST["files"];
+ 		
+ 		if(isset($files[$index])){
+ 			return count($files[$index]);
+ 		}else{
+ 			return 0;
+ 		}
+ 		
+ 	}		
+	
+	/***************************	 	
 	* HELPER: checkout files according to the merge strategy (ours, theirs), and add to index
 	***************************/	 			
  	function checkoutFiles($mergeStrategy, $files, $ignoreFiles, $repo){
@@ -245,8 +264,7 @@ class ResolveDeployment extends AppModel {
  		if( count($files) > 0){	 		
 			$this->executeAndLogGit($repo, 'checkout --'.$mergeStrategy.' ' . $filesStr);
 			$this->executeAndLogGit($repo, 'add ' . $filesStr);
-		}	 	
- 	
+		}	 	 	
  	}	
 	
 	/***************************	 	

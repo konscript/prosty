@@ -10,7 +10,7 @@ class UtilHelper extends AppHelper {
 		}
 
 		return 
-			'<div class="'.$classname.'">
+			'<div class="fileContainer '.$classname.'">
 				<p class="header">'.$header.':</p>			
 				<div class="files">'.$filesStr.'</div>
 			</div>';

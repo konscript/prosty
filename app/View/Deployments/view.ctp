@@ -18,8 +18,15 @@
 	</dl>
 </div>
 
+
+
 <?php if(isset($unstagedFiles)): ?>
-	<?php echo $this->Form->create(null, array('url' => '/resolve_deployments/add/' . $deployment['Project']['id'] .'/unstaged', 'id'=>'resolveUnstagedFiles', 'class' => 'resolveDialog')); ?>	
+	<?php echo $this->Form->create(null, array(
+		'url' => '/resolve_deployments/add/' . $deployment['Project']['id'] .'/unstaged', 
+		'id'=>'resolveUnstagedFiles', 
+		'class' => 'resolveDialog'
+	)); ?>
+	
 		<div id="unresolvedFiles">
 			<?php if(isset($unstagedFiles["new"])): ?>
 				<?php echo $this->Util->resolveFilesView("new", "New files", $unstagedFiles["new"]); ?>
@@ -38,13 +45,19 @@
 		<input type="submit" value="Ignore" id="ignoreFiles" class="addFiles">
 		<input type="submit" value="Commit" id="commitFiles" class="addFiles">
 		<input type="submit" value="Re-deploy" id="redeploy">
+		<?php echo $this->Html->image('loading.gif', array('alt' => 'Loading deployment', 'class' => 'loading'))?>		
 		<div class="clear"></div>		
 
 	<?php echo $this->Form->end(); ?>
 <?php endif; ?>						
 
 <?php if(isset($conflictingFiles)): ?>
-	<?php echo $this->Form->create(null, array('url' => '/resolve_deployments/add/' . $deployment['Project']['id'] .'/unmerged', 'id'=>'resolveConflictingFiles', 'class' => 'resolveDialog')); ?>	
+	<?php echo $this->Form->create(null, array(
+		'url' => '/resolve_deployments/add/' . $deployment['Project']['id'] .'/unmerged', 
+		'id' => 'resolveConflictingFiles', 
+		'class' => 'resolveDialog'
+	)); ?>	
+	
 		<div id="unresolvedFiles">
 			<?php echo $this->Util->resolveFilesView("unmergedFiles", "Unmerged files", $conflictingFiles); ?>
 		</div>
@@ -56,7 +69,9 @@
 	
 		<input type="submit" value="Use Github version" id="theirFiles" class="addFiles">
 		<input type="submit" value="Use local version" id="ourFiles" class="addFiles">
-		<input type="submit" value="Re-deploy" id="redeploy">			
+		<input type="submit" value="Re-deploy" id="redeploy">
+		<?php echo $this->Html->image('loading.gif', array('alt' => 'Loading deployment', 'class' => 'loading'))?>		
+
 		<div class="clear"></div>		
 	<?php echo $this->Form->end(); ?>
 <?php endif; ?>							
@@ -69,7 +84,7 @@
 	
 	
 
-<div class="related">
+<div class="deploymentErrors">
 	<h3><?php echo __('Errors during deployment');?></h3>
 	<?php if (!empty($deployment['DeploymentError'])):?>
 	<table cellpadding = "0" cellspacing = "0">

@@ -4,6 +4,7 @@ App::import('Vendor', 'Git');
 
 class Deployment extends AppModel {
 	public $actsAs = array('Prosty');	
+	var $order = "Deployment.id DESC";	
 	
 /**
  * belongsTo associations

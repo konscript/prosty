@@ -64,7 +64,7 @@ class ProstyBehavior extends ModelBehavior {
 		$options = array_merge($default_options, $options);	
 
 		// todo remove
-		debug($options);
+		// debug($options);
 
 		// skip if no errors occured
 		if(
