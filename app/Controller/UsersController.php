@@ -147,7 +147,6 @@ class UsersController extends AppController {
 			// Get id and role_id for user 
 			$userData = $this->User->find('first', array(
 				'conditions' => array('User.username' => $this->request->data['User']['username']),
-				'recursive' => 0,
 				'fields' => array('User.id', 'User.role_id')
 			));
 			
@@ -170,8 +169,7 @@ class UsersController extends AppController {
 			if($this->User->save($this->request->data)) {			
 				
 				// mail was successfully send
-				
-				if(mail($this->data['User']['username'], 'New password for Prosty', 'Your new password is: ' . $password[1])) {
+				if(mail($userData['UserEmail'][0]['email'], 'New password for Prosty', 'Your new password is: ' . $password[1])) {
 					$this->Session->setFlash('Dit nye kodeord blev sendt til din mail!');
 					debug($password);
 				}else{
