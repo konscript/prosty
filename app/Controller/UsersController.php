@@ -9,17 +9,17 @@ class UsersController extends AppController {
 
 	var $components = array('ResetPassword');		
 
-// action specific permissions
-    public $permissions = array(
-    	'delete' => array('editor'),
-    );     
+	// action specific permissions
+  public $permissions = array(
+  	'edit' => '*',
+  );
 
 	// allow action login for everybody
 	function beforeFilter(){
 		parent::beforeFilter(); 
 		$this->Auth->allow('login');
-		$this->Auth->allow('resetPassword');		
 		$this->Auth->allow('logout');		
+		$this->Auth->allow('resetPassword');
 	}
 
 	// basic auth
@@ -91,6 +91,13 @@ class UsersController extends AppController {
  * @return void
  */
 	public function edit($id = null) {
+	
+		// user can only edit own user
+		if($this->Auth->user('id') != $id){
+			$this->Session->setFlash(__('You are only allowed to edit you own profile'));		
+			$this->redirect(array('action' => 'index'));
+		}
+	
 		$this->User->id = $id;
 		if (!$this->User->exists()) {
 			throw new NotFoundException(__('Invalid user'));
@@ -167,9 +174,13 @@ class UsersController extends AppController {
 			
 			// save new password
 			if($this->User->save($this->request->data)) {			
+			
+				$headers = 'From: test@localhost' . "\r\n" .
+				'Reply-To: sl@konscript.com' . "\r\n" .
+				'X-Mailer: PHP/' . phpversion();	
 				
-				// mail was successfully send
-				if(mail($userData['UserEmail'][0]['email'], 'New password for Prosty', 'Your new password is: ' . $password[1])) {
+				// mail was successfully send			
+				if(mail($userData['UserEmail'][0]['email'], 'New password for Prosty', 'Your new password is: ' . $password[1], $headers)) {
 					$this->Session->setFlash('Dit nye kodeord blev sendt til din mail!');
 				}else{
 						$this->Session->setFlash('Email was not sent.');

@@ -7,7 +7,7 @@ class AppController extends Controller {
   function beforeFilter() {    
 
   
-  	// init isAuthorize() - action specific check
+	// init isAuthorize() - action specific check
 	$this->Auth->authorize = array('Controller');
   
       //Configure AuthComponent
@@ -42,15 +42,21 @@ class AppController extends Controller {
 		// get current role_alias eg. agent
 		$role_alias = $roles[$this->Auth->user('role_id')];
 		
-		// give access, if role_alias has permissions to th current action. eg. agent (role_alias) can delete (action) users
-		$allowedRoles = isset($permissions[$this->action]) ? $permissions[$this->action] : false;
-		if(
-			( is_array($allowedRoles) && in_array($role_alias, $allowedRoles)) ||
-			( isset($allowedRoles) && $allowedRoles == '*' )
-		){
+		// convert string to array
+
+		
+		if(isset($permissions[$this->action])){
+			$current_permission = $permissions[$this->action];
+			$allowedRoles = is_string($current_permission) ? array($current_permission) : $current_permission;
+		}else{
+			$allowedRoles = array();
+		}
+		
+		// give access, if role_alias has permissions to th current action. eg. agent (role_alias) can delete (action) users		
+		if(	in_array($role_alias, $allowedRoles) || in_array('*', $allowedRoles) ){
 			return true; 
 		} 
-				
+			
 		// access denied
 		return false;
 	}

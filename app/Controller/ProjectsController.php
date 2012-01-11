@@ -7,6 +7,11 @@ App::uses('AppController', 'Controller');
  */
 class ProjectsController extends AppController {
 
+	// action specific permissions
+  public $permissions = array(
+  	'edit' => '*',
+  );
+
 
 /**
  * index method
