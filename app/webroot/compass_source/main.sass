@@ -26,10 +26,7 @@ body
 	background: #000
 	height: 1px
 	
-#header-wrapper
-	$bg_top: rgb(72, 72, 72)
-	$bg_bottom: rgb(35, 35, 35)
-	
+#header-wrapper	
 	+background(linear-gradient(color-stops($bg_top, $bg_bottom)))
 	border:
 		bottom: 1px solid #000
@@ -284,23 +281,39 @@ div.view
 
 // title
 p.header
-	font-weight: bold
-	margin-top: 5px		
+	padding: 5px
+	font-weight: bold	
 		
-		
-//---------- SPECIFIC VIEWS -------------//		
+.deploymentErrors
+	display: none		
+	
+.loading
+	display: none
+
+	
+//---------- Deployment view -------------//		
 
 .resolveDialog
 	input
 		float: left
 		
+	.fileContainer
+		border-radius: 2px		
+		border: 1px solid $bg_top
+		width: 200px
+		margin: 10px
+
+	.header
+		color: #fff
+		+background(linear-gradient(color-stops($bg_top, $bg_bottom)))		
+		
 	p.file
 		margin-left: 10px
 		
+	// deployment button
 	input#redeploy
-		visibility: hidden
-		
-		
+		display: none
+
 //--------- UTILITIES ---------//
 
 .clear

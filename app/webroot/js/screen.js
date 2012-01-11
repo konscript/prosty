@@ -62,22 +62,36 @@ $(document).ready(function() {
 		}	
 	}
 		
-	// deploy action
+	// click on deploy button
 	$('.resolveDialog #redeploy').click(function(){
-    $(this).attr('disabled', 'disabled');
+		// disable button and fadein loading
+		//$(this).attr('disabled', 'disabled');
+    $(".loading").fadeIn();
     $("#debugger").html(""); 
     
-		var formAction = $('.resolveDialog').attr('action');
-    $.post(formAction, {'files': fileArray}, function(response, textStatus) {
-        $("#debugger").html(response); 
+    // set form urls
+		var formActionUrl = $('.resolveDialog').attr('action');		
+		
+    // post selected files
+    $.post(formActionUrl, {'files': fileArray}, function(response, textStatus) {
+    		
+    		// if response is json, we will redirect to the url given
+				try {
+						var json = $.parseJSON(response);
+						window.location.href = json["url"];
+						
+				// unexpected error. Output it
+				} catch (e) {
+	        $("#debugger").html(response); 
+				}    
     })
     .error(function() {
       $('.resolveDialog #redeploy').removeAttr('disabled');    
    		$("#debugger").append("http Error");
+	    $(".loading").fadeOut();
  		})
  		.success(function() {
-      $('.resolveDialog #redeploy').removeAttr('disabled');
-      $("#debugger").append("http success");
+      $(".loading").fadeOut();
  		});
 		return false;    
 	});
