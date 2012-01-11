@@ -244,7 +244,7 @@ class Project extends AppModel {
 			// create mysqldump
 			if($type == "sql") {
 				$dbname = $project_alias;					
-				$cmd = "mysqldump -u ".getenv('mysql.user')." -p".getenv("mysql.password")." $dbname > $file";
+				$cmd = "mysqldump -u ".Configure::read('mysql.username')." -p".Configure::read('mysql.password')." $dbname > $file";
 			
 			// create tar archive with web files
 			}else{
