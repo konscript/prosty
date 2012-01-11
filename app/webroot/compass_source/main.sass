@@ -120,9 +120,6 @@ $main-color-link: rgb(57, 110, 156)
 
 //--------- ELEMENTS ---------//
 
-input:after
-	content: "asda"
-
 form
 	div, p
 		display: block
@@ -153,6 +150,10 @@ form
 			&.error
 				font-weight: bold
 				color: rgb(165, 16, 0)
+
+// checkbox floated, for label to be shown adjacently
+input[type="checkbox"]
+	float: left
 
 input[type="button"], input[type="submit"], a.button
 	+border-radius(3px)

@@ -71,7 +71,18 @@ class Project extends AppModel {
 		$path = $this->getProjectPath($project_alias);	
     return !is_dir($path); //return false if it exists      
   }       	    
-           		
+
+	/***************************		 
+	* beforeValidate
+	***************************/
+	function beforeValidate(){
+	
+		// remove Github validation
+		if(isset($this->data["Project"]["skipGithub"]) && $this->data["Project"]["skipGithub"] == true){
+			unset($this->validate["project_alias"]["github"]);
+		}
+	}
+
   /**
    * beforeSave: executes after valdiations and before save
    *************************************************/
@@ -100,7 +111,7 @@ class Project extends AppModel {
 			$this->executeAndLogGit($repo, 'config branch.master.merge refs/heads/master');
 					
 			// wordpress: download and extract latest version
-			if(isset($this->data["Project"]["wordpress"]) && $this->data["Project"]["wordpress"] == true){
+			if(isset($this->data["Project"]["installWordpress"]) && $this->data["Project"]["installWordpress"] == true){
 				$this->setup_wp_and_kontemplate($project_alias);
 
 				// push to GitHub
