@@ -10,6 +10,6 @@
 		<input type="submit" value="Login" class="green submit button" />
 	</p>
 	<p class="forgot-password">
-		<span><?php echo __('or'); ?> <a href="#"><?php echo __('lost your password?'); ?></a></span>
+		<span><?php echo __('or'); ?> <?php echo $this->Html->link('lost your password?', array('controller' => 'users', 'action' => 'resetPassword')); ?></span>
 	</p>
 </div>
