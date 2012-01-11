@@ -7,7 +7,7 @@ App::uses('AppController', 'Controller');
  */
 class UsersController extends AppController {
 
-
+	var $components = array('ResetPassword');		
 
 // action specific permissions
     public $permissions = array(
@@ -18,6 +18,7 @@ class UsersController extends AppController {
 	function beforeFilter(){
 		parent::beforeFilter(); 
 		$this->Auth->allow('login');
+		$this->Auth->allow('resetPassword');		
 		$this->Auth->allow('logout');		
 	}
 
@@ -129,4 +130,58 @@ class UsersController extends AppController {
 		$this->Session->setFlash(__('User was not deleted'));
 		$this->redirect(array('action' => 'index'));
 	}
+	
+/**
+ * resetPassword method
+ *
+ * Generates a new password and sends it to the user
+ * 
+ * @return void
+ */	
+
+	function resetPassword() {
+			
+		// Only do something if data is passed in the form
+		if(!empty($this->request->data)) {
+			
+			// Get id and role_id for user 
+			$userData = $this->User->find('first', array(
+				'conditions' => array('User.username' => $this->request->data['User']['username']),
+				'recursive' => 0,
+				'fields' => array('User.id', 'User.role_id')
+			));
+			
+			// username not found
+			if(empty($userData)){
+				$this->Session->setFlash('Den angivne email eksisterer ikke i systemet.');
+				return;
+			}
+						
+			// Generate new password (hash and cleartext)
+			$password = $this->ResetPassword->generateRandomPassword();
+			
+			// Set user id to update record
+			$this->User->id = $userData['User']['id'];			
+			
+			// Set password
+			$this->request->data['User']['password'] = $password[1];							
+			
+			// save new password
+			if($this->User->save($this->request->data)) {			
+				
+				// mail was successfully send
+				
+				if(mail($this->data['User']['username'], 'New password for Prosty', 'Your new password is: ' . $password[1])) {
+					$this->Session->setFlash('Dit nye kodeord blev sendt til din mail!');
+					debug($password);
+				}else{
+						$this->Session->setFlash('Email was not sent.');
+				}
+				
+			}else{				
+				$this->Session->setFlash('Der skete en fejl. Prøv venligst igen.');
+			}			
+
+		}
+	}	
 }
