@@ -149,16 +149,18 @@ class UsersController extends AppController {
 			
 		// Only do something if data is passed in the form
 		if(!empty($this->request->data)) {
+		
+			$username = $this->request->data['User']['username'];
 			
 			// Get id and role_id for user 
 			$userData = $this->User->find('first', array(
-				'conditions' => array('User.username' => $this->request->data['User']['username']),
+				'conditions' => array('User.username' => $username),
 				'fields' => array('User.id', 'User.role_id')
 			));
 			
 			// username not found
 			if(empty($userData)){
-				$this->Session->setFlash('Den angivne email eksisterer ikke i systemet.');
+				$this->Session->setFlash('The username does not exist.');
 				return;
 			}
 						
@@ -174,13 +176,13 @@ class UsersController extends AppController {
 			// save new password
 			if($this->User->save($this->request->data)) {			
 			
-				$headers = 'From: test@localhost' . "\r\n" .
+				$headers = 'From: prosty@localhost' . "\r\n" .
 				'Reply-To: sl@konscript.com' . "\r\n" .
 				'X-Mailer: PHP/' . phpversion();	
 				
 				// mail was successfully send			
-				if(mail($userData['UserEmail'][0]['email'], 'New password for Prosty', 'Your new password is: ' . $password[1], $headers)) {
-					$this->Session->setFlash('Dit nye kodeord blev sendt til din mail!');
+				if(mail($userData['UserEmail'][0]['email'], 'New password for Prosty', 'Hi '.$username.',\n Your new password is: ' . $password[1], $headers)) {
+					$this->Session->setFlash('A new password was sent to your mail.');
 				}else{
 						$this->Session->setFlash('Email was not sent.');
 				}
