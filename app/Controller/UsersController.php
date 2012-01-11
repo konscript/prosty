@@ -171,7 +171,6 @@ class UsersController extends AppController {
 				// mail was successfully send
 				if(mail($userData['UserEmail'][0]['email'], 'New password for Prosty', 'Your new password is: ' . $password[1])) {
 					$this->Session->setFlash('Dit nye kodeord blev sendt til din mail!');
-					debug($password);
 				}else{
 						$this->Session->setFlash('Email was not sent.');
 				}
