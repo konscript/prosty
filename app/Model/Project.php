@@ -59,6 +59,9 @@ class Project extends AppModel {
    * Validation: check if a Github account has been created
    *************************************************/
 	function checkGithub($check) {
+				if($this->data["Project"]["skipGithub"] == true){
+					return true;
+				}
         return Git::git_check_repository('ls-remote -h '.$this->getGitRemote($check["project_alias"]).'.git' );        
 	}
 	
