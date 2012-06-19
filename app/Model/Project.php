@@ -185,7 +185,7 @@ class Project extends AppModel {
 		
 		// decode json and get date for last commit
 		// determine date of latest commit 
-		$commits_json = json_decode(file_get_contents("https://api.github.com/repos/konscript/dlvs-uk/commits"));	
+		$commits_json = json_decode(file_get_contents("https://api.github.com/repos/konscript/".$project_alias."/commits"));	
 		$last_commit = strtotime($commits_json[0]->commit->author->date);		
 
 		// download and untar kontemplate				
